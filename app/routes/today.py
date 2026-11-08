@@ -53,12 +53,16 @@ async def today(request: Request):
         )
     ]
     groups = [("Questions", questions), ("Due soon", due)] + project_groups
+    # Due-soon can include AI-owned items; only count what is waiting on the owner.
+    waiting = sum(
+        1 for _, items in groups for t in items if t.source == "mine" or t.who == owner
+    )
     return render(
         request,
         "today.html",
         groups=groups,
         questions_count=len(questions),
-        waiting=len(seen),
+        waiting=waiting,
         new_ideas=sum(i.status == "New" for i in ideas.items),
         projects={p.id: p for p in projects.items},
         stale_since=stale_since(todos, projects, ideas),

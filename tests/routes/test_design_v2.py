@@ -8,7 +8,7 @@ def test_today_groups_unique_and_badge(web_client, store):
     day = datetime.now(ZoneInfo("America/Toronto")).date()
     store.todo_items[3] = replace(store.todo_items[3], due=day)
     text = web_client.get("/").text
-    assert "4 things are waiting on you." in text
+    assert "3 things are waiting on you." in text  # Codex-owned due item not counted
     assert "<h2>Questions <span>1</span></h2>" in text
     assert "<h2>Due soon <span>1</span></h2>" in text
     assert "<h2>Sample project <span>1</span></h2>" in text

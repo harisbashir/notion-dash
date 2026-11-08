@@ -54,3 +54,19 @@ def test_today_toggle_refreshes_groups_and_count(web_client, hx):
     refreshed = web_client.get("/", headers=hx).text
     assert "2 things are waiting on you." in refreshed
     assert "Choose a provider" not in refreshed
+
+
+def test_headline_ignores_ai_owned_due_items(web_client, store):
+    from dataclasses import replace
+    from datetime import date
+
+    base = next(t for t in store.todo_items if t.source == "ai")
+    store.todo_items.append(
+        replace(base, id="claude-due", who="Claude", phase=None, due=date.today())
+    )
+    before = web_client.get("/").text
+    assert "claude-due" in before  # shown under Due soon
+    store.todo_items = [t for t in store.todo_items if t.id != "claude-due"]
+    after = web_client.get("/").text
+    head = lambda html: html.split("waiting on you")[0][-40:]  # noqa: E731
+    assert head(before) == head(after)
