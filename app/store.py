@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Any
 
+from app.blocks import text_to_blocks
 from app.config import Settings
 from app.notion.client import NotionError
 from app.schema import (
@@ -20,7 +21,6 @@ from app.schema import (
     prop_status,
     prop_text,
     prop_title,
-    rich_text,
 )
 
 
@@ -35,18 +35,6 @@ class _Entry:
     pages: list[dict]
     fetched: float
     loaded_at: datetime
-
-
-def _paragraphs(text):
-    return [
-        {
-            "object": "block",
-            "type": "paragraph",
-            "paragraph": {"rich_text": rich_text(line)},
-        }
-        for line in text.splitlines()
-        if line.strip()
-    ]
 
 
 class Store:
@@ -275,8 +263,8 @@ class Store:
                 "type": type,
                 "project_ids": [project_id] if project_id else [],
             },
-            _paragraphs(body),
+            text_to_blocks(body),
         )
 
     async def append_note(self, page_id, text):
-        await self.client.append_children(page_id, _paragraphs(text))
+        await self.client.append_children(page_id, text_to_blocks(text))
