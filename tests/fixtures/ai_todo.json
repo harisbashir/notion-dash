@@ -1,0 +1,83 @@
+{
+  "object": "page",
+  "id": "fake-ai-todo",
+  "url": "https://www.notion.so/fake-ai_todo",
+  "created_time": "2026-11-01T12:00:00Z",
+  "last_edited_time": "2026-11-08T12:00:00Z",
+  "properties": {
+    "Task": {
+      "type": "title",
+      "title": [
+        {
+          "type": "text",
+          "plain_text": "Review sample",
+          "text": {
+            "content": "Review sample"
+          }
+        }
+      ]
+    },
+    "Status": {
+      "type": "status",
+      "status": {
+        "name": "To do"
+      }
+    },
+    "Priority": {
+      "type": "select",
+      "select": {
+        "name": "High"
+      }
+    },
+    "Due": {
+      "type": "date",
+      "date": {
+        "start": "2026-11-09T02:00:00Z",
+        "end": null,
+        "time_zone": null
+      }
+    },
+    "Notes": {
+      "type": "rich_text",
+      "rich_text": [
+        {
+          "type": "text",
+          "plain_text": "Ask about examples",
+          "text": {
+            "content": "Ask about examples"
+          }
+        }
+      ]
+    },
+    "Project": {
+      "type": "relation",
+      "relation": [
+        {
+          "id": "fake-project"
+        }
+      ]
+    },
+    "Who": {
+      "type": "select",
+      "select": {
+        "name": "Example Owner"
+      }
+    },
+    "Phase": {
+      "type": "select",
+      "select": {
+        "name": "Question"
+      }
+    },
+    "Added by": {
+      "type": "select",
+      "select": {
+        "name": "Example Agent"
+      }
+    },
+    "Added": {
+      "type": "created_time",
+      "created_time": "2026-11-01T12:00:00Z"
+    }
+  }
+}

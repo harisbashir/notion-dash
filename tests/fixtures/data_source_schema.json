@@ -1,0 +1,46 @@
+{
+  "object": "data_source",
+  "id": "fake-ds",
+  "properties": {
+    "Status": {
+      "type": "status",
+      "status": {
+        "options": [
+          {
+            "name": "New"
+          },
+          {
+            "name": "Custom status"
+          }
+        ]
+      }
+    },
+    "Priority": {
+      "type": "select",
+      "select": {
+        "options": [
+          {
+            "name": "High"
+          },
+          {
+            "name": "Custom priority"
+          }
+        ]
+      }
+    },
+    "Tags": {
+      "type": "multi_select",
+      "multi_select": {
+        "options": [
+          {
+            "name": "Example"
+          }
+        ]
+      }
+    },
+    "Name": {
+      "type": "title",
+      "title": {}
+    }
+  }
+}

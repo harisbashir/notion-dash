@@ -1,0 +1,75 @@
+{
+  "object": "page",
+  "id": "fake-project",
+  "url": "https://www.notion.so/fake-project",
+  "created_time": "2026-11-01T12:00:00Z",
+  "last_edited_time": "2026-11-08T12:00:00Z",
+  "properties": {
+    "Project": {
+      "type": "title",
+      "title": [
+        {
+          "type": "text",
+          "plain_text": "Example project",
+          "text": {
+            "content": "Example project"
+          }
+        }
+      ]
+    },
+    "Status": {
+      "type": "status",
+      "status": {
+        "name": "Active"
+      }
+    },
+    "Priority": {
+      "type": "select",
+      "select": {
+        "name": "High"
+      }
+    },
+    "Area": {
+      "type": "select",
+      "select": {
+        "name": "Personal"
+      }
+    },
+    "Summary": {
+      "type": "rich_text",
+      "rich_text": [
+        {
+          "type": "text",
+          "plain_text": "A sample summary",
+          "text": {
+            "content": "A sample summary"
+          }
+        }
+      ]
+    },
+    "Code": {
+      "type": "url",
+      "url": "https://example.com/code"
+    },
+    "Live site": {
+      "type": "url",
+      "url": "https://example.com/live"
+    },
+    "Parent Project": {
+      "type": "relation",
+      "relation": [
+        {
+          "id": "fake-parent"
+        }
+      ]
+    },
+    "Sub-projects": {
+      "type": "relation",
+      "relation": [
+        {
+          "id": "fake-child"
+        }
+      ]
+    }
+  }
+}

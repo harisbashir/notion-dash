@@ -1,0 +1,75 @@
+{
+  "object": "page",
+  "id": "fake-my-task",
+  "url": "https://www.notion.so/fake-my_task",
+  "created_time": "2026-11-01T12:00:00Z",
+  "last_edited_time": "2026-11-08T12:00:00Z",
+  "properties": {
+    "Name": {
+      "type": "title",
+      "title": [
+        {
+          "type": "text",
+          "plain_text": "Write sample",
+          "text": {
+            "content": "Write sample"
+          }
+        }
+      ]
+    },
+    "Status": {
+      "type": "status",
+      "status": {
+        "name": "In progress"
+      }
+    },
+    "Priority": {
+      "type": "select",
+      "select": {
+        "name": "Low"
+      }
+    },
+    "Due date": {
+      "type": "date",
+      "date": {
+        "start": "2026-11-10",
+        "end": null,
+        "time_zone": null
+      }
+    },
+    "Notes": {
+      "type": "rich_text",
+      "rich_text": [
+        {
+          "type": "text",
+          "plain_text": "Some notes",
+          "text": {
+            "content": "Some notes"
+          }
+        }
+      ]
+    },
+    "Project": {
+      "type": "relation",
+      "relation": [
+        {
+          "id": "fake-project"
+        }
+      ]
+    },
+    "List": {
+      "type": "select",
+      "select": {
+        "name": "Work"
+      }
+    },
+    "Parent Task": {
+      "type": "relation",
+      "relation": [
+        {
+          "id": "fake-parent-task"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "object": "page",
+  "id": "fake-idea",
+  "url": "https://www.notion.so/fake-idea",
+  "created_time": "2026-11-01T12:00:00Z",
+  "last_edited_time": "2026-11-08T12:00:00Z",
+  "properties": {
+    "Idea": {
+      "type": "title",
+      "title": [
+        {
+          "type": "text",
+          "plain_text": "Sample idea",
+          "text": {
+            "content": "Sample idea"
+          }
+        }
+      ]
+    },
+    "Status": {
+      "type": "status",
+      "status": {
+        "name": "New"
+      }
+    },
+    "Details": {
+      "type": "rich_text",
+      "rich_text": [
+        {
+          "type": "text",
+          "plain_text": "Try something new",
+          "text": {
+            "content": "Try something new"
+          }
+        }
+      ]
+    },
+    "Project": {
+      "type": "relation",
+      "relation": [
+        {
+          "id": "fake-project"
+        }
+      ]
+    },
+    "Added by": {
+      "type": "select",
+      "select": {
+        "name": "Example Owner"
+      }
+    },
+    "Added": {
+      "type": "created_time",
+      "created_time": "2026-11-01T12:00:00Z"
+    }
+  }
+}
