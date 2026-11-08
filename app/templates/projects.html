@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% from '_project_card.html' import card %}
+{% from '_forms.html' import select, search %}
+{% block title %}Projects{% endblock %}
+{% block content %}
+<h1>Projects</h1>
+<form class="filters" method="get" action="/projects">{{ select('area', 'Area', area_options, area) }}<button>Apply filter</button></form>
+{{ search('#project-board') }}
+<div id="project-board">
+<div class="board">
+{% for status, trees in groups %}<section><h2>{{ status }}</h2>{% for tree in trees %}{{ card(tree, counts) }}{% else %}<p>No projects here. Check another status.</p>{% endfor %}</section>{% endfor %}
+</div>
+{% for status, trees in closed_groups %}<details><summary>{{ status }}</summary>{% for tree in trees %}{{ card(tree, counts) }}{% else %}<p>No projects here. Check another status.</p>{% endfor %}</details>{% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% macro card(tree, counts) %}
+{% set p = tree.project %}
+<article class="project-card" id="project-{{ p.id }}" data-search="{{ p.name }} {{ p.summary }} {{ p.area or '' }}">
+<h3><a class="priority-{{ p.priority|default('', true)|lower }}" href="/projects/{{ p.id }}">{{ p.name }}</a></h3>
+<div class="meta"><span>{{ p.area or '' }}</span><span>{{ p.priority or '' }}</span><span>{{ counts[p.id] }} open {{ 'to-do' if counts[p.id] == 1 else 'to-dos' }}</span></div>
+<p>{{ p.summary }}</p>
+{% if p.url|safe_url %}<a href="{{ p.url|safe_url }}">Open in Notion</a>{% endif %}
+{% if tree.children %}<div class="subprojects">{% for child in tree.children %}{{ card(child, counts) }}{% endfor %}</div>{% endif %}
+</article>
+{% endmacro %}
