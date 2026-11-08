@@ -10,7 +10,7 @@
 {{ project_select(projects, [project] if project else []) }}
 <label>Body<textarea name="body">{{ body or '' }}</textarea></label>
 {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
-<button>{{ 'Try again' if error else 'Create note' }}</button>
+<button>{{ 'Try again' if error else 'Add note' }}</button>
 <a href="/notes">Cancel</a>
 </form>
 </div>

@@ -20,29 +20,16 @@ async def context(request, include_closed=False):
 
 
 @router.get("/ideas")
-async def ideas(request: Request, closed: bool = False):
+async def ideas(request: Request, closed: bool = False, status: str = "New"):
+    closed = closed or status == "Closed"
     ctx = await context(request, closed)
-    statuses = ["New", "Planned", "Maybe later"]
-    statuses += list(
-        dict.fromkeys(
-            i.status or "No status"
-            for i in ctx["ideas"]
-            if i.status not in statuses + ["Done", "Dropped"]
-        )
-    )
-    groups = [
-        (s, [i for i in ctx["ideas"] if (i.status or "No status") == s])
-        for s in statuses
+    selected = "Closed" if closed else status
+    ctx["ideas"] = [
+        i
+        for i in ctx["ideas"]
+        if (i.status in {"Done", "Dropped"} if closed else i.status == selected)
     ]
-    closed_ideas = [i for i in ctx["ideas"] if i.status in {"Done", "Dropped"}]
-    return render(
-        request,
-        "ideas.html",
-        **ctx,
-        groups=groups,
-        closed=closed,
-        closed_ideas=closed_ideas,
-    )
+    return render(request, "ideas.html", **ctx, selected=selected)
 
 
 @router.post("/ideas")

@@ -48,6 +48,7 @@ async def todos(
         )
         and (not project or project in t.project_ids)
         and (not status or t.status == status)
+        and (not done or t.status == "Done")
     ]
     return render(
         request,

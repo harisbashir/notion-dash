@@ -7,10 +7,10 @@ def test_today_sections(web_client):
     text = web_client.get("/").text
     for heading in [
         "3 things are waiting on you.",
-        "Waiting on you",
-        "Your tasks",
-        "Due soon",
-        "New ideas",
+        "Questions <span>1</span>",
+        "Sample project <span>1</span>",
+        "No project <span>1</span>",
+        "1 new idea",
     ]:
         assert heading in text
     assert "Ordinary owner task" in text
@@ -46,10 +46,10 @@ def test_today_row_ids_unique(web_client):
     assert len(ids) == len(set(ids))
 
 
-def test_today_toggle_refreshes_other_occurrence_and_count(web_client, hx):
+def test_today_toggle_refreshes_groups_and_count(web_client, hx):
     text = web_client.get("/").text
     assert "refreshDashboard from:body" in text
-    response = web_client.post("/todos/ai/a2/done?occurrence=due", headers=hx)
+    response = web_client.post("/todos/ai/a2/done", headers=hx)
     assert response.headers.get("HX-Trigger-After-Swap") == "refreshDashboard"
     refreshed = web_client.get("/", headers=hx).text
     assert "2 things are waiting on you." in refreshed

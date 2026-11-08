@@ -1,19 +1,17 @@
 {% extends 'base.html' %}
-{% from '_forms.html' import search %}
 {% block title %}{{ project.name }}{% endblock %}
 {% block content %}
 <h1>{{ project.name }}</h1>
-<div class="meta">
+{% include '_project_fields.html' %}
+<div class="detail-links">
 {% if project.code_url|safe_url %}<a href="{{ project.code_url|safe_url }}">Code</a>{% endif %}
 {% if project.live_url|safe_url %}<a href="{{ project.live_url|safe_url }}">Live site</a>{% endif %}
 {% if project.url|safe_url %}<a href="{{ project.url|safe_url }}">Open in Notion</a>{% endif %}
 </div>
-{% include '_project_fields.html' %}
-{{ search('#project-lists') }}
-<div id="project-lists" class="list">
-<section><h2>To-dos</h2>{% for todo in todos %}{% include '_todo_row.html' %}{% else %}<p>No open to-dos. Add one in To-dos.</p>{% endfor %}</section>
-<section><h2>Ideas</h2>{% with status_options=status_options_ideas %}{% for idea in ideas %}{% include '_idea_row.html' %}{% else %}<p>No ideas yet. Add one in Ideas.</p>{% endfor %}{% endwith %}</section>
-<section><h2>Decisions &amp; notes</h2>{% for note in ai_notes %}{% include '_note_row.html' %}{% else %}<p>No decisions yet. Add one in Notion.</p>{% endfor %}</section>
-<section><h2>My notes</h2>{% for note in my_notes %}{% include '_note_row.html' %}{% else %}<p>No notes yet. Add one in Notes.</p>{% endfor %}</section>
-</div>
+{% with project_page=project.id %}
+<section><h2>To-dos <span>{{ todos|length }}</span></h2><div class="group">{% for todo in todos %}{% include '_todo_row.html' %}{% else %}<p class="empty">No to-dos here.</p>{% endfor %}</div></section>
+<section><h2>Ideas <span>{{ ideas|length }}</span></h2><div class="group">{% with status_options=status_options_ideas %}{% for idea in ideas %}{% include '_idea_row.html' %}{% else %}<p class="empty">No ideas here.</p>{% endfor %}{% endwith %}</div></section>
+<section><h2>Decisions &amp; notes <span>{{ ai_notes|length }}</span></h2><div class="group">{% for note in ai_notes %}{% include '_note_row.html' %}{% else %}<p class="empty">No decisions here.</p>{% endfor %}</div></section>
+<section><h2>My notes <span>{{ my_notes|length }}</span></h2><div class="group">{% for note in my_notes %}{% include '_note_row.html' %}{% else %}<p class="empty">No notes here.</p>{% endfor %}</div></section>
+{% endwith %}
 {% endblock %}

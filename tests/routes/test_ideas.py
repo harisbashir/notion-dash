@@ -2,7 +2,7 @@ from dataclasses import replace
 from html import unescape
 
 
-def test_ideas_order(web_client, store):
+def test_ideas_status_chips(web_client, store):
     store.idea_items = [
         replace(store.idea_items[0], id=str(i), title=title, status=status)
         for i, (title, status) in enumerate(
@@ -14,14 +14,19 @@ def test_ideas_order(web_client, store):
             ]
         )
     ]
-    text = web_client.get("/ideas").text
-    assert (
-        text.index("New idea") < text.index("Planned idea") < text.index("Later idea")
-    )
-    assert "Closed idea" not in text
-    text = web_client.get("/ideas?closed=1").text
-    assert "Closed idea" in text
-    assert "<details open" in text
+    for status, title in [
+        ("New", "New idea"),
+        ("Planned", "Planned idea"),
+        ("Maybe later", "Later idea"),
+        ("Closed", "Closed idea"),
+    ]:
+        text = web_client.get("/ideas", params={"status": status}).text
+        assert title in text
+        for other in {"Later idea", "Planned idea", "New idea", "Closed idea"} - {
+            title
+        }:
+            assert other not in text
+    assert "Closed idea" in web_client.get("/ideas?closed=1").text
 
 
 def test_create_idea(web_client, store, hx):

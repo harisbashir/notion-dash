@@ -1,16 +1,15 @@
 {% extends 'base.html' %}
-{% from '_forms.html' import select, project_select, search %}
+{% from '_forms.html' import search %}
 {% block title %}Notes{% endblock %}
 {% block content %}
 <h1>Notes</h1>
-<div class="tabs"><a href="/notes?tab=mine" {% if tab == 'mine' %}aria-current="page"{% endif %}>My notes</a><a href="/notes?tab=ai" {% if tab == 'ai' %}aria-current="page"{% endif %}>AI decisions &amp; notes</a></div>
-<p><a href="/notes/new">Add a note</a></p>
-<details class="filter-panel" {% if type or project %}open{% endif %}><summary>Filters</summary>
-<form class="filters" method="get" action="/notes">
-<input type="hidden" name="tab" value="{{ tab }}">
-{{ select('type', 'Type', type_options, type, empty_label='All types') }}
-{{ project_select(projects, [project] if project else [], empty_label='All projects') }}<button>Apply filters</button>
-</form></details>
-{{ search('#note-list') }}
-<div id="note-list" class="list">{% for note in notes %}{% include '_note_row.html' %}{% else %}<p>No notes here. Add a note or change the filters.</p>{% endfor %}</div>
+<div class="segmented" aria-label="Note source">
+{% for value, label in [('mine', 'Mine'), ('ai', 'AI')] %}<a href="/notes?tab={{ value }}&amp;project={{ project|urlencode }}" {% if tab == value %}aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}
+</div>
+<div class="chips" aria-label="Note type">
+{% for value in [''] + type_options %}<a href="/notes?tab={{ tab }}&amp;type={{ value|urlencode }}&amp;project={{ project|urlencode }}" {% if type == value %}aria-current="page"{% endif %}>{{ value or 'All' }}</a>{% endfor %}
+</div>
+{{ search('#note-list', 'Search notes') }}
+<div id="note-list" class="group">{% for note in notes %}{% include '_note_row.html' %}{% else %}<p class="empty">No notes here.</p>{% endfor %}
+<a class="add-row" href="/notes/new">＋ New note</a></div>
 {% endblock %}

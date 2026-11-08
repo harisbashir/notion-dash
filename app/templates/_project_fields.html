@@ -1,9 +1,14 @@
 {% from '_forms.html' import select %}
-<form id="project-fields" class="editor {% if saved %}saved{% endif %}" hx-post="/projects/{{ project.id }}" hx-target="this" hx-swap="outerHTML">
+<form id="project-fields" class="project-fields {% if saved %}saved{% endif %}" hx-post="/projects/{{ project.id }}" hx-trigger="change target:select, submit" hx-disabled-elt="#project-fields select, #project-fields textarea, #project-fields button" hx-target="this" hx-swap="outerHTML">
 <input type="hidden" name="_original" value="{{ {'status': project.status, 'priority': project.priority, 'summary': project.summary}|tojson|forceescape }}">
+<div class="compact-selects">
 {{ select('status', 'Status', status_options, project.status, false) }}
 {{ select('priority', 'Priority', priority_options, project.priority) }}
+</div>
+{% if project.summary %}<p class="project-summary-full">{{ project.summary }}</p>{% endif %}
+<details {% if error %}open{% endif %}><summary>Edit</summary>
 <label>Summary<textarea name="summary">{{ project.summary }}</textarea></label>
-{% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
 <button>{{ 'Try again' if error else 'Save' }}</button>
+</details>
+{% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
 </form>

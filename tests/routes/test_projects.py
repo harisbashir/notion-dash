@@ -13,15 +13,15 @@ def test_group_order(web_client, store):
     ]
     text = web_client.get("/projects").text
     positions = [
-        text.index("<h2>" + s + "</h2>")
+        text.index("<h2>" + s + " <span>1</span></h2>")
         for s in ["Active", "Before launch", "Not started", "On hold"]
     ]
     assert positions == sorted(positions)
-    assert "<details" in text and "<summary>Live (1)</summary>" in text
-    assert "<summary>Done (1)</summary>" in text
+    assert "<details" in text and "<summary>Live <span>1</span></summary>" in text
+    assert "<summary>Done <span>1</span></summary>" in text
 
 
-def test_subprojects_nested(web_client, store):
+def test_subprojects_indented_siblings(web_client, store):
     store.project_items.append(
         replace(
             store.project_items[0], id="child", name="Child project", parent_id="p1"
@@ -31,7 +31,9 @@ def test_subprojects_nested(web_client, store):
     start = text.index('id="project-p1"')
     child = text.index('id="project-child"')
     assert child > start
-    assert 'class="subprojects"' in text[start:child]
+    assert "</article>" in text[start:child]
+    assert 'class="project-row subproject"' in text[start:child]
+    assert 'style="--depth:1"' in text[child:]
     assert text.count('id="project-child"') == 1
 
 
@@ -48,7 +50,7 @@ def test_area_filter(web_client, store):
 
 def test_open_todo_count(web_client, store):
     store.todo_items[-1] = replace(store.todo_items[-1], project_ids=["p1"])
-    assert "1 open to-do" in web_client.get("/projects").text
+    assert "1 open</span>" in web_client.get("/projects").text
 
 
 def test_project_page_sections(web_client):

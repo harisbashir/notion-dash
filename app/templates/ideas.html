@@ -1,16 +1,14 @@
 {% extends 'base.html' %}
-{% from '_forms.html' import search %}
 {% block title %}Ideas{% endblock %}
 {% block content %}
 <h1>Ideas</h1>
-{% include '_idea_new.html' %}
-{{ search('#idea-lists') }}
-<div class="list" id="idea-lists">
-{% for status, items in groups %}<section><h2>{{ status }}</h2><div id="idea-list-{{ status|lower|replace(' ', '-') }}">
-{% for idea in items %}{% include '_idea_row.html' %}{% else %}<p>No ideas here. Add an idea above.</p>{% endfor %}
-</div></section>{% endfor %}
-<details {% if closed %}open{% endif %}><summary>Done and dropped</summary>
-{% if closed %}{% for idea in closed_ideas %}{% include '_idea_row.html' %}{% else %}<p>No closed ideas. Browse your open ideas above.</p>{% endfor %}
-{% else %}<a href="/ideas?closed=1">Show done and dropped ideas</a>{% endif %}
-</details></div>
+<div class="chips" aria-label="Idea status">
+{% for label in ['New', 'Planned', 'Maybe later', 'Closed'] %}
+<a href="/ideas?status={{ label|urlencode }}" {% if selected == label %}aria-current="page"{% endif %}>{{ label }}</a>
+{% endfor %}
+</div>
+<div class="group" id="idea-list-new">
+{% for idea in ideas %}{% include '_idea_row.html' %}{% else %}<p class="empty">No ideas here.</p>{% endfor %}
+<details class="add-row"><summary>＋ Add an idea</summary>{% include '_idea_new.html' %}</details>
+</div>
 {% endblock %}

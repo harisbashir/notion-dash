@@ -26,7 +26,8 @@ def test_edit_sends_only_changed(web_client, store, hx):
     )
     assert response.status_code == 200
     assert store.writes == [("a1", {"status": "Doing"})]
-    assert "Doing" in response.text
+    assert "Doing" not in response.text  # Only In progress and Waiting are row facts.
+    assert store.todo_items[0].status == "Doing"
 
 
 def test_editor_uses_options(web_client, store, hx):

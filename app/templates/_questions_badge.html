@@ -1,0 +1,1 @@
+<span id="questions-badge" class="badge" {% if fragment %}hx-swap-oob="outerHTML"{% endif %} {% if not questions_count %}hidden{% endif %} aria-label="{{ questions_count }} {{ 'question' if questions_count == 1 else 'questions' }}">{{ questions_count }}</span>

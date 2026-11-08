@@ -1,16 +1,16 @@
 {% extends 'base.html' %}
-{% from '_forms.html' import search %}
 {% block title %}Today{% endblock %}
 {% block content %}
 <h1 class="headline">{% if waiting == 0 %}Nothing is waiting on you.{% elif waiting == 1 %}1 thing is waiting on you.{% else %}{{ waiting }} things are waiting on you.{% endif %}</h1>
-{{ search('#today-lists') }}
-<div id="today-lists">
-<section class="list"><h2>Waiting on you</h2>
-{% for todo in owned %}{% include '_todo_row.html' %}{% else %}<p>No to-dos waiting on you. Check back later.</p>{% endfor %}
-</section>
-<div class="today-grid">
-<section><h2>Due soon</h2>{% for todo in due %}{% set occurrence = 'due' %}{% include '_todo_row.html' %}{% else %}<p>Nothing due soon. See your plans in Projects.</p>{% endfor %}</section>
-<section><h2>Your tasks</h2>{% for todo in mine %}{% include '_todo_row.html' %}{% else %}<p>No open tasks. Add one in To-dos.</p>{% endfor %}</section>
-</div></div>
-<section><h2>New ideas</h2><a href="/ideas">{{ new_ideas }} new {{ 'idea' if new_ideas == 1 else 'ideas' }}</a></section>
+{% if waiting %}
+{% for title, items in groups if items %}
+<section><h2>{{ title }} <span>{{ items|length }}</span></h2><div class="group">
+{% for todo in items[:3] %}{% include '_todo_row.html' %}{% endfor %}
+{% if items|length > 3 %}<details class="more"><summary>Show {{ items|length - 3 }} more</summary>
+{% for todo in items[3:] %}{% include '_todo_row.html' %}{% endfor %}
+</details>{% endif %}
+</div></section>
+{% endfor %}
+{% if new_ideas %}<a class="ideas-link" href="/ideas">{{ new_ideas }} new {{ 'idea' if new_ideas == 1 else 'ideas' }}</a>{% endif %}
+{% endif %}
 {% endblock %}

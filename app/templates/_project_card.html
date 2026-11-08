@@ -1,10 +1,8 @@
-{% macro card(tree, counts) %}
+{% macro card(tree, counts, depth=0) %}
 {% set p = tree.project %}
-<article class="project-card" id="project-{{ p.id }}" data-search="{{ p.name }} {{ p.summary }} {{ p.area or '' }}">
-<h3><a class="priority-{{ p.priority|default('', true)|lower }}" href="/projects/{{ p.id }}">{{ p.name }}</a></h3>
-<div class="meta"><span>{{ p.area or '' }}</span><span>{{ p.priority or '' }}</span><span>{{ counts[p.id] }} open {{ 'to-do' if counts[p.id] == 1 else 'to-dos' }}</span></div>
-<p>{{ p.summary }}</p>
-{% if p.url|safe_url %}<a href="{{ p.url|safe_url }}">Open in Notion</a>{% endif %}
-{% if tree.children %}<div class="subprojects">{% for child in tree.children %}{{ card(child, counts) }}{% endfor %}</div>{% endif %}
+<article class="project-row {% if depth %}subproject{% endif %}" id="project-{{ p.id }}" style="--depth:{{ depth }}">
+<div class="project-name"><a class="row-title" href="/projects/{{ p.id }}">{% if p.priority == 'High' %}<span class="priority-dot" aria-hidden="true"></span><span class="visually-hidden">High priority</span>{% endif %}{{ p.name }}</a><span class="open-count">{{ counts[p.id] }} open</span></div>
+{% if p.summary %}<p class="project-summary">{{ p.summary }}</p>{% endif %}
 </article>
+{% for child in tree.children %}{{ card(child, counts, depth + 1) }}{% endfor %}
 {% endmacro %}

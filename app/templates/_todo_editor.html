@@ -1,6 +1,6 @@
 {% from '_forms.html' import select, project_select %}
-{% set row_id = 'todo-' ~ todo.source ~ '-' ~ todo.id ~ ('-due' if occurrence == 'due' else '') %}
-<form id="{{ row_id }}" class="editor todo-editor" hx-post="/todos/{{ todo.source }}/{{ todo.id }}?occurrence={{ occurrence|default('')|urlencode }}" hx-target="this" hx-swap="outerHTML">
+{% set row_id = 'todo-' ~ todo.source ~ '-' ~ todo.id %}
+<form id="{{ row_id }}" class="editor todo-editor" hx-post="/todos/{{ todo.source }}/{{ todo.id }}?project_page={{ project_page|default('')|urlencode }}" hx-target="this" hx-swap="outerHTML">
 <input type="hidden" name="_original" value="{{ {'status': todo.status, 'priority': todo.priority, 'notes': todo.notes, 'project_ids': todo.project_ids, 'due': due_value(todo.due) or none}|tojson|forceescape }}">
 <h3>{{ todo.title }}</h3>
 {{ select('status', 'Status', status_options, todo.status, false) }}
@@ -8,5 +8,6 @@
 <label>Due<input type="date" name="due" value="{{ due_value(todo.due) }}"></label>
 <label>Notes<textarea name="notes">{{ todo.notes }}</textarea></label>
 {{ project_select(projects, todo.project_ids) }}
-<div class="actions"><button>Save</button><button type="button" hx-get="/todos/{{ todo.source }}/{{ todo.id }}?occurrence={{ occurrence|default('')|urlencode }}" hx-target="#{{ row_id }}" hx-swap="outerHTML">Cancel</button></div>
+<div class="actions"><button>Save</button><button type="button" hx-get="/todos/{{ todo.source }}/{{ todo.id }}?project_page={{ project_page|default('')|urlencode }}" hx-target="#{{ row_id }}" hx-swap="outerHTML">Cancel</button></div>
+{% if todo.url|safe_url %}<a class="detail-link" href="{{ todo.url|safe_url }}">Open in Notion</a>{% endif %}
 </form>

@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, Request
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -9,7 +9,7 @@ from app.guard import RequestGuard
 from app.notion.client import NotionClient, NotionUnavailable
 from app.routes import ideas, notes, projects, today, todos
 from app.store import Store
-from app.web import ROOT, render
+from app.web import ROOT, navigation_context, render
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -27,11 +27,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app = FastAPI(lifespan=lifespan)
     app.state.settings = settings
-    app.include_router(ideas.router)
-    app.include_router(notes.router)
-    app.include_router(projects.router)
-    app.include_router(today.router)
-    app.include_router(todos.router)
+    app.include_router(ideas.router, dependencies=[Depends(navigation_context)])
+    app.include_router(notes.router, dependencies=[Depends(navigation_context)])
+    app.include_router(projects.router, dependencies=[Depends(navigation_context)])
+    app.include_router(today.router, dependencies=[Depends(navigation_context)])
+    app.include_router(todos.router, dependencies=[Depends(navigation_context)])
     app.add_middleware(RequestGuard)
     app.mount("/static", StaticFiles(directory=ROOT / "static"), name="static")
 

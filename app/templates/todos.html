@@ -1,18 +1,24 @@
 {% extends 'base.html' %}
-{% from '_forms.html' import select, project_select, search %}
+{% from '_forms.html' import project_select, search %}
 {% block title %}To-dos{% endblock %}
 {% block content %}
 <h1>To-dos</h1>
-{% include '_task_new.html' %}
-<details class="filter-panel" {% if who or project or status or done %}open{% endif %}><summary>Filters</summary>
-<form class="filters" method="get" action="/todos">
-{{ select('who', 'Who', who_options, who, empty_label='Anyone') }}
+<div class="filter-row">
+<div class="chips" aria-label="To-do filters">
+{% for label, value in [('All', ''), ('You', owner_name), ('Claude', 'Claude'), ('Codex', 'Codex'), ('Done', '')] %}
+<a href="/todos?who={{ value|urlencode }}&amp;project={{ project|urlencode }}{% if label == 'Done' %}&amp;done=1{% endif %}" {% if (label == 'Done' and done) or (label != 'Done' and not done and who == value) %}aria-current="page"{% endif %}>{{ label }}</a>
+{% endfor %}
+</div>
+<form class="project-filter" action="/todos" method="get" data-auto-submit>
+<input type="hidden" name="who" value="{{ who }}">
+{% if done %}<input type="hidden" name="done" value="1">{% endif %}
+{% if status %}<input type="hidden" name="status" value="{{ status }}">{% endif %}
 {{ project_select(projects, [project] if project else [], empty_label='All projects') }}
-{{ select('status', 'Status', status_options, status, empty_label='Open') }}
-<label class="inline-check"><input type="checkbox" name="done" value="1" {% if done %}checked{% endif %}> Show done</label><button>Apply filters</button>
-</form></details>
-{{ search('#todo-list') }}
-<div class="list" id="todo-list">
-{% for todo in todos %}{% include '_todo_row.html' %}{% else %}<p>No open to-dos. Add one above.</p>{% endfor %}
+</form>
+</div>
+{{ search('#todo-list', 'Search to-dos') }}
+<div class="group" id="todo-list">
+{% for todo in todos %}{% include '_todo_row.html' %}{% else %}<p class="empty">No to-dos here.</p>{% endfor %}
+<details class="add-row"><summary>＋ Add a task</summary>{% include '_task_new.html' %}</details>
 </div>
 {% endblock %}

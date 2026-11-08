@@ -1,16 +1,15 @@
 {% from '_forms.html' import select, project_select %}
-<article id="idea-{{ idea.id }}" class="row {% if saved %}saved{% endif %}" data-search="{{ idea.title }} {{ idea.details }} {{ project_name(idea.project_ids, projects) }}">
-<h3>{{ idea.title }}</h3>
-<div class="meta"><span>{{ idea.status or '' }}</span><span>{{ project_name(idea.project_ids, projects) }}</span>{% if idea.added_by %}<span>{{ idea.added_by }}</span>{% endif %}
-{% if idea.url|safe_url %}<a href="{{ idea.url|safe_url }}">Open in Notion</a>{% endif %}</div>
-{% if idea.details %}<p>{{ idea.details }}</p>{% endif %}
-<details {% if error %}open{% endif %}><summary>Edit idea</summary>
-<form class="editor" hx-post="/ideas/{{ idea.id }}" hx-target="#idea-{{ idea.id }}" hx-swap="outerHTML">
+<article id="idea-{{ idea.id }}" class="row idea-row {% if saved %}saved{% endif %}">
+<details {% if error %}open{% endif %}>
+<summary><span class="row-title">{{ idea.title }}</span><span class="meta">{% if not project_page %}{{ project_name(idea.project_ids, projects) }}{% endif %}</span></summary>
+<form class="editor" hx-post="/ideas/{{ idea.id }}?project_page={{ project_page|default('')|urlencode }}" hx-target="#idea-{{ idea.id }}" hx-swap="outerHTML">
 <input type="hidden" name="_original" value="{{ {'status': idea.status, 'project_ids': idea.project_ids}|tojson|forceescape }}">
+{% if idea.details %}<p>{{ idea.details }}</p>{% endif %}
 {{ select('status', 'Status', status_options, idea.status, false) }}
 {{ project_select(projects, idea.project_ids) }}
 {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
 <button>{{ 'Try again' if error else 'Save' }}</button>
+{% if idea.url|safe_url %}<a class="detail-link" href="{{ idea.url|safe_url }}">Open in Notion</a>{% endif %}
 </form>
 </details>
 </article>

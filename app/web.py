@@ -4,9 +4,10 @@ from pathlib import Path
 from urllib.parse import urlsplit
 from zoneinfo import ZoneInfo
 
-from fastapi import HTTPException
+from fastapi import HTTPException, Request
 from fastapi.templating import Jinja2Templates
 
+from app.notion.client import NotionError
 from app.schema import classify_due, project_name
 
 ROOT = Path(__file__).parent
@@ -45,6 +46,36 @@ def friendly_due(due, today, tz):
     return label if day.year == today.year else f"{label} {day.year}"
 
 
+async def navigation_context(request: Request):
+    # Badge reads use the store cache and must not prevent other screens opening.
+    if request.method != "GET":
+        return
+    try:
+        result = await request.app.state.store.todos()
+    except NotionError:
+        return
+    request.state.questions_count = sum(
+        t.source == "ai"
+        and t.who == request.app.state.settings.owner_name
+        and t.phase == "Question"
+        and t.status != "Done"
+        for t in result.items
+    )
+
+
+def todo_meta(todo, projects, owner, project_page=False):
+    facts = []
+    if todo.project_ids and not project_page:
+        facts.append(("project", project_name(todo.project_ids, projects)))
+    if todo.due:
+        facts.append(("due", todo.due))
+    if todo.source == "ai" and todo.who and todo.who != owner:
+        facts.append(("owner", todo.who))
+    if todo.status in {"In progress", "Waiting"}:
+        facts.append(("status", todo.status))
+    return facts[:2]
+
+
 def render(request, template, *, status_code=200, refresh=False, **ctx):
     tz = ZoneInfo(request.app.state.settings.timezone)
     today = datetime.now(tz).date()
@@ -53,6 +84,9 @@ def render(request, template, *, status_code=200, refresh=False, **ctx):
         request=request,
         name=template,
         context={
+            "todo_meta": todo_meta,
+            "project_page": request.query_params.get("project_page", ""),
+            "questions_count": getattr(request.state, "questions_count", 0),
             "fragment": request.headers.get("HX-Request") == "true",
             "occurrence": request.query_params.get("occurrence", ""),
             "owner_name": request.app.state.settings.owner_name,

@@ -10,7 +10,7 @@ document.addEventListener('input', (event) => {
 const scheme = window.matchMedia('(prefers-color-scheme: dark)');
 function updateTheme() {
   document.querySelector('meta[name="theme-color"]')?.setAttribute(
-    'content', scheme.matches ? '#0F1D20' : '#E9EFEC'
+    'content', scheme.matches ? '#0E1A1C' : '#F1F4F3'
   );
 }
 scheme.addEventListener('change', updateTheme);
@@ -21,4 +21,9 @@ document.addEventListener('htmx:beforeSwap', (event) => {
     event.detail.shouldSwap = true;
     event.detail.isError = false;
   }
+});
+
+document.addEventListener('change', (event) => {
+  const form = event.target.closest('form[data-auto-submit]');
+  if (form && event.target.matches('select')) form.requestSubmit();
 });

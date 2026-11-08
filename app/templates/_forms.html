@@ -11,4 +11,4 @@
 {% for p in projects.values() %}<option value="{{ p.id }}" {% if ids and p.id == ids[0] %}selected{% endif %}>{{ p.name }}</option>{% endfor %}
 </select></label>
 {% endmacro %}
-{% macro search(target) %}<label class="list">Filter by text<input type="search" data-filter="{{ target }}" placeholder="Search this list"></label>{% endmacro %}
+{% macro search(target, placeholder) %}<label class="search"><span class="visually-hidden">{{ placeholder }}</span><input type="search" data-filter="{{ target }}" placeholder="{{ placeholder }}"></label>{% endmacro %}

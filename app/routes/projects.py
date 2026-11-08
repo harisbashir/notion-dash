@@ -21,9 +21,11 @@ def project_forest(projects):
 
     def branch(p):
         seen.add(p.id)
+        branches = [branch(c) for c in children[p.id] if c.id not in seen]
         return {
             "project": p,
-            "children": [branch(c) for c in children[p.id] if c.id not in seen],
+            "children": branches,
+            "count": 1 + sum(child["count"] for child in branches),
         }
 
     trees = [branch(p) for p in roots]
