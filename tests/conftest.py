@@ -22,7 +22,11 @@ def settings():
 
 
 @pytest.fixture
-def client(settings):
+def client(settings, respx_mock):
+    for ds in ("projects", "ai-todos", "my-tasks", "ideas", "ai-notes", "my-notes"):
+        respx_mock.get(f"https://api.notion.com/v1/data_sources/fake-{ds}").respond(
+            200, json={"properties": {}}
+        )
     with TestClient(
         create_app(settings), backend_options={"loop_factory": client_event_loop}
     ) as client:

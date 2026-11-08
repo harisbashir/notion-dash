@@ -33,4 +33,4 @@ def test_settings_from_env(monkeypatch):
 def test_healthz_ok(client):
     response = client.get("/healthz")
     assert response.status_code == 200
-    assert response.json() == {"status": "ok"}
+    assert response.json() == {"status": "ok", "missing": []}
