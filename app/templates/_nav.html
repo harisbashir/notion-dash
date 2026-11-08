@@ -1,0 +1,5 @@
+<nav aria-label="Main navigation">
+{% for label, path in [('Today', '/'), ('Projects', '/projects'), ('To-dos', '/todos'), ('Ideas', '/ideas'), ('Notes', '/notes')] %}
+<a href="{{ path }}" {% if request.url.path == path or (path != '/' and request.url.path.startswith(path + '/')) %}aria-current="page"{% endif %}>{{ label }}</a>
+{% endfor %}
+</nav>

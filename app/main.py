@@ -1,10 +1,14 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.config import Settings, get_settings
-from app.notion.client import NotionClient
+from app.guard import RequestGuard
+from app.notion.client import NotionClient, NotionUnavailable
 from app.store import Store
+from app.web import ROOT, render
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -22,6 +26,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app = FastAPI(lifespan=lifespan)
     app.state.settings = settings
+    app.add_middleware(RequestGuard)
+    app.mount("/static", StaticFiles(directory=ROOT / "static"), name="static")
+
+    @app.get("/sw.js")
+    async def service_worker():
+        return FileResponse(ROOT / "static" / "sw.js", media_type="text/javascript")
+
+    @app.exception_handler(NotionUnavailable)
+    async def unavailable(request: Request, exc: NotionUnavailable):
+        return render(request, "error.html", status_code=503)
 
     @app.get("/healthz")
     async def healthz():
