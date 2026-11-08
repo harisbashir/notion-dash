@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% from '_forms.html' import select, project_select, search %}
+{% block title %}To-dos{% endblock %}
+{% block content %}
+<h1>To-dos</h1>
+{% include '_task_new.html' %}
+<form class="filters" method="get" action="/todos">
+{{ select('who', 'Who', who_options, who) }}
+{{ project_select(projects, [project] if project else []) }}
+{{ select('status', 'Status', status_options, status) }}
+<label><input type="checkbox" name="done" value="1" {% if done %}checked{% endif %}>Show done</label><button>Apply filters</button>
+</form>
+{{ search('#todo-list') }}
+<div class="list" id="todo-list">
+{% for todo in todos %}{% include '_todo_row.html' %}{% else %}<p>No open to-dos. Add one above.</p>{% endfor %}
+</div>
+{% endblock %}

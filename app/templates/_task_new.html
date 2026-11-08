@@ -1,0 +1,7 @@
+{% from '_forms.html' import project_select %}
+<form class="quick-add" hx-post="/todos" hx-target="#todo-list" hx-swap="afterbegin">
+<label>Task<input name="title" placeholder="Add a task" value="{{ title or '' }}" required></label>
+{{ project_select(projects, [project] if project else []) }}
+<button>Add task</button>
+{% if error %}<p class="error" role="alert">{{ error }}</p><button>Try again</button>{% endif %}
+</form>

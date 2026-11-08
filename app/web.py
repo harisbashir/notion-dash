@@ -36,6 +36,7 @@ def render(request, template, *, status_code=200, **ctx):
         name=template,
         context={
             "fragment": request.headers.get("HX-Request") == "true",
+            "occurrence": request.query_params.get("occurrence", ""),
             "owner_name": request.app.state.settings.owner_name,
             "due_class": lambda due: classify_due(due, today, tz),
             "due_value": lambda due: (

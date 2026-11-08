@@ -1,0 +1,11 @@
+{% from '_forms.html' import select, project_select %}
+{% set row_id = 'todo-' ~ todo.source ~ '-' ~ todo.id ~ ('-due' if occurrence == 'due' else '') %}
+<form id="{{ row_id }}" class="editor" hx-post="/todos/{{ todo.source }}/{{ todo.id }}?occurrence={{ occurrence|default('')|urlencode }}" hx-target="this" hx-swap="outerHTML">
+<h3>{{ todo.title }}</h3>
+{{ select('status', 'Status', status_options, todo.status, false) }}
+{{ select('priority', 'Priority', priority_options, todo.priority) }}
+<label>Due<input type="date" name="due" value="{{ due_value(todo.due) }}"></label>
+<label>Notes<textarea name="notes">{{ todo.notes }}</textarea></label>
+{{ project_select(projects, todo.project_ids) }}
+<div class="actions"><button>Save</button><button type="button" hx-get="/todos/{{ todo.source }}/{{ todo.id }}?occurrence={{ occurrence|default('')|urlencode }}" hx-target="#{{ row_id }}" hx-swap="outerHTML">Cancel</button></div>
+</form>

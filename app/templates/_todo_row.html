@@ -1,0 +1,18 @@
+{% set row_id = 'todo-' ~ todo.source ~ '-' ~ todo.id ~ ('-due' if occurrence == 'due' else '') %}
+{% set owner = 'you' if todo.source == 'mine' or todo.who == owner_name else todo.who|default('', true)|lower %}
+<div id="{{ row_id }}" class="row todo-row owner-{{ owner if owner in ['you', 'claude', 'codex', 'client'] else 'other' }} {% if saved %}saved{% endif %}" data-search="{{ todo.title }} {{ project_name(todo.project_ids, projects) }} {{ todo.notes }}">
+<div class="row-main">
+<button class="row-title priority-{{ todo.priority|default('', true)|lower }}" hx-get="/todos/{{ todo.source }}/{{ todo.id }}/edit?occurrence={{ occurrence|default('')|urlencode }}" hx-target="#{{ row_id }}" hx-swap="outerHTML">{{ todo.title }}</button>
+<div class="meta">
+<span>{{ 'My task' if todo.source == 'mine' else 'AI to-do' }}</span>
+{% if todo.who %}<span>{{ todo.who }}</span>{% endif %}
+{% if todo.project_ids %}<span>{{ project_name(todo.project_ids, projects) }}</span>{% endif %}
+{% if todo.due %}<span class="{{ due_class(todo.due) }}">Due {{ due_value(todo.due) }}</span>{% endif %}
+{% if todo.phase %}<span>{{ todo.phase }}</span>{% endif %}
+<span>{{ todo.status or '' }}</span>
+{% if todo.url|safe_url %}<a href="{{ todo.url|safe_url }}">Open in Notion</a>{% endif %}
+</div>
+{% if error %}<p class="error" role="alert">{{ error }}</p><button hx-get="/todos/{{ todo.source }}/{{ todo.id }}/edit?occurrence={{ occurrence|default('')|urlencode }}" hx-target="#{{ row_id }}" hx-swap="outerHTML">Try again</button>{% endif %}
+</div>
+<button class="check" aria-label="{{ 'Reopen' if todo.status == 'Done' else 'Complete' }} {{ todo.title }}" aria-pressed="{{ 'true' if todo.status == 'Done' else 'false' }}" hx-post="/todos/{{ todo.source }}/{{ todo.id }}/done?occurrence={{ occurrence|default('')|urlencode }}" hx-target="#{{ row_id }}" hx-swap="outerHTML">{% if todo.status == 'Done' %}✓{% endif %}</button>
+</div>
