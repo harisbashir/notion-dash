@@ -105,3 +105,37 @@ def test_invalid_source_and_date(web_client, hx):
 def test_no_change_does_not_write(web_client, store, hx):
     web_client.post("/todos/ai/a1", data={"notes": "Original notes"}, headers=hx)
     assert store.writes == []
+
+
+def test_create_task_error_targets_original_form(web_client, store, hx):
+    store.fail_write = True
+    response = web_client.post("/todos", headers=hx, data={"title": "Keep task"})
+    assert response.headers.get("HX-Retarget") == "#task-new"
+    assert response.headers.get("HX-Reswap") == "outerHTML"
+    assert 'value="Keep task"' in response.text
+
+
+def test_editor_preserves_external_changes(web_client, store, hx):
+    import json
+    import re
+    from html import unescape
+
+    text = web_client.get("/todos/ai/a1/edit", headers=hx).text
+    match = re.search(r'name="_original" value="([^"]+)"', text)
+    assert match is not None
+    original = json.loads(unescape(match[1]))
+    store.todo_items[0] = replace(store.todo_items[0], notes="External notes")
+    web_client.post(
+        "/todos/ai/a1",
+        headers=hx,
+        data={
+            "status": "Doing",
+            "priority": "High",
+            "due": "",
+            "notes": "Original notes",
+            "project": "p1",
+            "_original": json.dumps(original),
+        },
+    )
+    assert store.writes == [("a1", {"status": "Doing"})]
+    assert store.todo_items[0].notes == "External notes"

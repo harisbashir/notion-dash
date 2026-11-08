@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% from '_forms.html' import select, project_select, search %}
+{% block title %}Notes{% endblock %}
+{% block content %}
+<h1>Notes</h1>
+<div class="tabs"><a href="/notes?tab=mine" {% if tab == 'mine' %}aria-current="page"{% endif %}>My notes</a><a href="/notes?tab=ai" {% if tab == 'ai' %}aria-current="page"{% endif %}>AI decisions &amp; notes</a></div>
+<p><a href="/notes/new">Add a note</a></p>
+<form class="filters" method="get" action="/notes">
+<input type="hidden" name="tab" value="{{ tab }}">
+{{ select('type', 'Type', type_options, type) }}
+{{ project_select(projects, [project] if project else []) }}<button>Apply filters</button>
+</form>
+{{ search('#note-list') }}
+<div id="note-list" class="list">{% for note in notes %}{% include '_note_row.html' %}{% else %}<p>No notes here. Add a note or change the filters.</p>{% endfor %}</div>
+{% endblock %}

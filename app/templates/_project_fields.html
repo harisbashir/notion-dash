@@ -1,5 +1,6 @@
 {% from '_forms.html' import select %}
 <form id="project-fields" class="editor {% if saved %}saved{% endif %}" hx-post="/projects/{{ project.id }}" hx-target="this" hx-swap="outerHTML">
+<input type="hidden" name="_original" value="{{ {'status': project.status, 'priority': project.priority, 'summary': project.summary}|tojson|forceescape }}">
 {{ select('status', 'Status', status_options, project.status, false) }}
 {{ select('priority', 'Priority', priority_options, project.priority) }}
 <label>Summary<textarea name="summary">{{ project.summary }}</textarea></label>

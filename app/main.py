@@ -7,7 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from app.config import Settings, get_settings
 from app.guard import RequestGuard
 from app.notion.client import NotionClient, NotionUnavailable
-from app.routes import projects, today, todos
+from app.routes import ideas, notes, projects, today, todos
 from app.store import Store
 from app.web import ROOT, render
 
@@ -27,6 +27,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app = FastAPI(lifespan=lifespan)
     app.state.settings = settings
+    app.include_router(ideas.router)
+    app.include_router(notes.router)
     app.include_router(projects.router)
     app.include_router(today.router)
     app.include_router(todos.router)

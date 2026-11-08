@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}{{ note.title }}{% endblock %}
+{% block content %}
+<h1>{{ note.title }}</h1>
+{% if note.url|safe_url %}<p><a href="{{ note.url|safe_url }}">Open in Notion</a></p>{% endif %}
+{% include '_note_fields.html' %}
+{% if note.source == 'ai' and note.details %}<div class="note-body"><p class="note-details">{{ note.details }}</p></div>{% endif %}
+{% include '_note_body.html' %}
+{% endblock %}

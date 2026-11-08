@@ -1,6 +1,7 @@
 {% from '_forms.html' import select, project_select %}
 {% set row_id = 'todo-' ~ todo.source ~ '-' ~ todo.id ~ ('-due' if occurrence == 'due' else '') %}
-<form id="{{ row_id }}" class="editor" hx-post="/todos/{{ todo.source }}/{{ todo.id }}?occurrence={{ occurrence|default('')|urlencode }}" hx-target="this" hx-swap="outerHTML">
+<form id="{{ row_id }}" class="editor todo-editor" hx-post="/todos/{{ todo.source }}/{{ todo.id }}?occurrence={{ occurrence|default('')|urlencode }}" hx-target="this" hx-swap="outerHTML">
+<input type="hidden" name="_original" value="{{ {'status': todo.status, 'priority': todo.priority, 'notes': todo.notes, 'project_ids': todo.project_ids, 'due': due_value(todo.due) or none}|tojson|forceescape }}">
 <h3>{{ todo.title }}</h3>
 {{ select('status', 'Status', status_options, todo.status, false) }}
 {{ select('priority', 'Priority', priority_options, todo.priority) }}

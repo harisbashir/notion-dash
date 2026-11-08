@@ -33,9 +33,10 @@ def test_due_in_configured_timezone(web_client, store):
 
 
 def test_today_zero_and_one(web_client, store):
+    store.todo_items = [store.todo_items[2], store.todo_items[3]]
+    assert "1 thing is waiting on you." in web_client.get("/").text
     store.todo_items = []
     assert "Nothing is waiting on you." in web_client.get("/").text
-    # A task for someone else doesn't increase the owner's count.
 
 
 def test_today_row_ids_unique(web_client):
@@ -43,3 +44,13 @@ def test_today_row_ids_unique(web_client):
 
     ids = re.findall(r'\bid="([^"]+)"', web_client.get("/").text)
     assert len(ids) == len(set(ids))
+
+
+def test_today_toggle_refreshes_other_occurrence_and_count(web_client, hx):
+    text = web_client.get("/").text
+    assert "refreshDashboard from:body" in text
+    response = web_client.post("/todos/ai/a2/done?occurrence=due", headers=hx)
+    assert response.headers.get("HX-Trigger-After-Swap") == "refreshDashboard"
+    refreshed = web_client.get("/", headers=hx).text
+    assert "2 things are waiting on you." in refreshed
+    assert "Choose a provider" not in refreshed

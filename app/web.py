@@ -1,4 +1,5 @@
-from datetime import datetime
+import json
+from datetime import date, datetime
 from pathlib import Path
 from urllib.parse import urlsplit
 from zoneinfo import ZoneInfo
@@ -27,11 +28,11 @@ TEMPLATES.env.filters["safe_url"] = safe_url
 TEMPLATES.env.globals["project_name"] = project_name
 
 
-def render(request, template, *, status_code=200, **ctx):
+def render(request, template, *, status_code=200, refresh=False, **ctx):
     tz = ZoneInfo(request.app.state.settings.timezone)
     today = datetime.now(tz).date()
     stale = ctx.get("stale_since")
-    return TEMPLATES.TemplateResponse(
+    response = TEMPLATES.TemplateResponse(
         request=request,
         name=template,
         context={
@@ -52,6 +53,10 @@ def render(request, template, *, status_code=200, **ctx):
         status_code=status_code,
     )
 
+    if refresh:
+        response.headers["HX-Trigger-After-Swap"] = "refreshDashboard"
+    return response
+
 
 def stale_since(*results):
     dates = [r.stale_since for r in results if r.stale_since is not None]
@@ -65,5 +70,22 @@ def find(items, page_id):
     raise HTTPException(404, "Item not found")
 
 
-def changes_for(item, values):
-    return {key: value for key, value in values.items() if getattr(item, key) != value}
+def changes_for(item, values, original=None):
+    baseline = {}
+    if original:
+        try:
+            baseline = json.loads(original)
+        except (ValueError, TypeError):
+            raise HTTPException(422, "Invalid original values") from None
+        if not isinstance(baseline, dict):
+            raise HTTPException(422, "Invalid original values")
+
+    def normalized(value):
+        return value.isoformat() if isinstance(value, date) else value
+
+    return {
+        key: value
+        for key, value in values.items()
+        if getattr(item, key) != value
+        and (key not in baseline or normalized(value) != baseline[key])
+    }

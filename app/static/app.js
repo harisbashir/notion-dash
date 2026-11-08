@@ -1,4 +1,5 @@
 document.addEventListener('input', (event) => {
+  if (event.target.form) event.target.form.dataset.dirty = 'true';
   const target = event.target.dataset.filter;
   if (!target) return;
   const query = event.target.value.toLocaleLowerCase();

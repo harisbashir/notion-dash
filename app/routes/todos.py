@@ -94,7 +94,7 @@ async def toggle(request: Request, source: Source, page_id: str):
         ctx["saved"] = True
     except NotionError:
         ctx["error"] = SAVE_ERROR
-    return render(request, "_todo_row.html", **ctx)
+    return render(request, "_todo_row.html", refresh=ctx.get("saved", False), **ctx)
 
 
 @router.post("/todos/{source}/{page_id}")
@@ -117,7 +117,7 @@ async def update(request: Request, source: Source, page_id: str):
             raise HTTPException(422, "Invalid due date") from None
         if due != old:
             values["due"] = due
-    changes = changes_for(todo, values)
+    changes = changes_for(todo, values, form.get("_original"))
     try:
         if changes:
             ctx["todo"] = await request.app.state.store.update_todo(
@@ -126,7 +126,7 @@ async def update(request: Request, source: Source, page_id: str):
         ctx["saved"] = True
     except NotionError:
         ctx["error"] = SAVE_ERROR
-    return render(request, "_todo_row.html", **ctx)
+    return render(request, "_todo_row.html", refresh=ctx.get("saved", False), **ctx)
 
 
 @router.post("/todos")
@@ -147,5 +147,8 @@ async def create(request: Request):
             title, form.get("project") or None
         )
     except NotionError:
-        return render(request, "_task_new.html", error=SAVE_ERROR, **ctx)
-    return render(request, "_todo_row.html", saved=True, **ctx)
+        response = render(request, "_task_new.html", error=SAVE_ERROR, **ctx)
+        response.headers["HX-Retarget"] = "#task-new"
+        response.headers["HX-Reswap"] = "outerHTML"
+        return response
+    return render(request, "_todo_row.html", saved=True, refresh=True, **ctx)

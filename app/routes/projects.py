@@ -99,6 +99,7 @@ async def detail(request: Request, page_id: str):
         ideas=[i for i in ideas.items if page_id in i.project_ids],
         ai_notes=[n for n in ai.items if page_id in n.project_ids],
         my_notes=[n for n in mine.items if page_id in n.project_ids],
+        status_options_ideas=store.options("ideas", "status"),
     )
 
 
@@ -109,7 +110,7 @@ async def update(request: Request, page_id: str):
     values = {k: (form[k] or None) for k in ("status", "priority") if k in form}
     if "summary" in form:
         values["summary"] = form["summary"]
-    changes = changes_for(ctx["project"], values)
+    changes = changes_for(ctx["project"], values, form.get("_original"))
     try:
         if changes:
             ctx["project"] = await request.app.state.store.update_project(

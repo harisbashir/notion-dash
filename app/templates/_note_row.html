@@ -1,0 +1,6 @@
+<article class="row" data-search="{{ note.title }} {{ note.type or '' }} {{ project_name(note.project_ids, projects) }}">
+<h3><a href="/notes/{{ note.source }}/{{ note.id }}">{{ note.title }}</a></h3>
+<div class="meta"><span>{{ note.type or '' }}</span><span>{{ project_name(note.project_ids, projects) }}</span>
+{% if note.date %}<span>{{ note.date }}</span>{% endif %}
+{% if note.url|safe_url %}<a href="{{ note.url|safe_url }}">Open in Notion</a>{% endif %}
+</div></article>

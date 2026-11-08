@@ -102,3 +102,24 @@ def test_project_links_allowlist(web_client, store):
 def test_project_cycle_does_not_recurse_forever(web_client, store):
     store.project_items[0] = replace(store.project_items[0], parent_id="p1")
     assert web_client.get("/projects").text.count('id="project-p1"') == 1
+
+
+def test_project_preserves_external_changes(web_client, store, hx):
+    import re
+
+    original = re.search(
+        r'name="_original" value="([^"]+)"', web_client.get("/projects/p1").text
+    )
+    assert original is not None
+    store.project_items[0] = replace(store.project_items[0], summary="External summary")
+    web_client.post(
+        "/projects/p1",
+        headers=hx,
+        data={
+            "status": "On hold",
+            "priority": "High",
+            "summary": "A summary",
+            "_original": unescape(original[1]),
+        },
+    )
+    assert store.writes == [("p1", {"status": "On hold"})]

@@ -1,0 +1,8 @@
+{% from '_forms.html' import project_select %}
+<form {% if error %}data-dirty="true"{% endif %} id="idea-new" class="editor" hx-post="/ideas" hx-target="#idea-list-new" hx-swap="afterbegin">
+<label>Idea<input name="title" placeholder="Add an idea" value="{{ title or '' }}" required></label>
+<label>Details<textarea name="details">{{ details or '' }}</textarea></label>
+{{ project_select(projects, [project] if project else []) }}
+{% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+<button>{{ 'Try again' if error else 'Add idea' }}</button>
+</form>

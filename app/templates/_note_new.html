@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% from '_forms.html' import select, project_select %}
+{% block title %}New note{% endblock %}
+{% block content %}
+<div id="note-new">
+<h1>New note</h1>
+<form {% if error %}data-dirty="true"{% endif %} class="editor" hx-post="/notes" hx-target="#note-new" hx-swap="outerHTML">
+<label>Title<input name="title" value="{{ title or '' }}" required></label>
+{{ select('type', 'Type', type_options, type) }}
+{{ project_select(projects, [project] if project else []) }}
+<label>Body<textarea name="body">{{ body or '' }}</textarea></label>
+{% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+<button>{{ 'Try again' if error else 'Create note' }}</button>
+<a href="/notes">Cancel</a>
+</form>
+</div>
+{% endblock %}

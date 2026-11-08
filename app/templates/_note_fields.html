@@ -1,0 +1,8 @@
+{% from '_forms.html' import select, project_select %}
+<form id="note-fields" class="editor {% if saved %}saved{% endif %}" hx-post="/notes/{{ note.source }}/{{ note.id }}" hx-target="this" hx-swap="outerHTML">
+<input type="hidden" name="_original" value="{{ {'type': note.type, 'project_ids': note.project_ids}|tojson|forceescape }}">
+{{ select('type', 'Type', type_options, note.type) }}
+{{ project_select(projects, note.project_ids) }}
+{% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+<button>{{ 'Try again' if error else 'Save' }}</button>
+</form>

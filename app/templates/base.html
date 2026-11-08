@@ -15,7 +15,7 @@
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
 {% include '_nav.html' %}
-<main id="main">
+<main id="main" hx-get="{{ request.url.path }}{% if request.url.query %}?{{ request.url.query }}{% endif %}" hx-trigger="every 60s [!document.querySelector('form[data-dirty], .todo-editor')], refreshDashboard from:body" hx-target="this" hx-swap="innerHTML">
 {% endif %}
 {% include '_banner.html' %}
 {% block content %}{% endblock %}

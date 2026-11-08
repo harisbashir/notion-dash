@@ -12,8 +12,8 @@
 {{ search('#project-lists') }}
 <div id="project-lists" class="list">
 <section><h2>To-dos</h2>{% for todo in todos %}{% include '_todo_row.html' %}{% else %}<p>No open to-dos. Add one in To-dos.</p>{% endfor %}</section>
-<section><h2>Ideas</h2>{% for idea in ideas %}<div class="row" data-search="{{ idea.title }}"><a href="/ideas">{{ idea.title }}</a><p>{{ idea.details }}</p></div>{% else %}<p>No ideas yet. Add one in Ideas.</p>{% endfor %}</section>
-<section><h2>Decisions &amp; notes</h2>{% for note in ai_notes %}<div class="row" data-search="{{ note.title }}"><a href="/notes/{{ note.source }}/{{ note.id }}">{{ note.title }}</a></div>{% else %}<p>No decisions yet. Add one in Notion.</p>{% endfor %}</section>
-<section><h2>My notes</h2>{% for note in my_notes %}<div class="row" data-search="{{ note.title }}"><a href="/notes/{{ note.source }}/{{ note.id }}">{{ note.title }}</a></div>{% else %}<p>No notes yet. Add one in Notes.</p>{% endfor %}</section>
+<section><h2>Ideas</h2>{% with status_options=status_options_ideas %}{% for idea in ideas %}{% include '_idea_row.html' %}{% else %}<p>No ideas yet. Add one in Ideas.</p>{% endfor %}{% endwith %}</section>
+<section><h2>Decisions &amp; notes</h2>{% for note in ai_notes %}{% include '_note_row.html' %}{% else %}<p>No decisions yet. Add one in Notion.</p>{% endfor %}</section>
+<section><h2>My notes</h2>{% for note in my_notes %}{% include '_note_row.html' %}{% else %}<p>No notes yet. Add one in Notes.</p>{% endfor %}</section>
 </div>
 {% endblock %}

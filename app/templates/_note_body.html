@@ -1,0 +1,10 @@
+<div id="note-body">
+{% if notice %}<p role="status">{{ notice }}</p>{% endif %}
+<div class="note-body">{{ body }}</div>
+<form {% if error %}data-dirty="true"{% endif %} class="editor" hx-post="/notes/{{ note.id }}/append" hx-target="#note-body" hx-swap="outerHTML">
+<input type="hidden" name="_body" value="{{ body_blocks|default([])|tojson|forceescape }}">
+<label>Append text<textarea name="text" required>{{ append_text or '' }}</textarea></label>
+{% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+<button>{{ 'Try again' if error else 'Append text' }}</button>
+</form>
+</div>
