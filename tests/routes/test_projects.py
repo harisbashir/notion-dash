@@ -17,8 +17,8 @@ def test_group_order(web_client, store):
         for s in ["Active", "Before launch", "Not started", "On hold"]
     ]
     assert positions == sorted(positions)
-    assert "<details" in text and "<summary>Live</summary>" in text
-    assert "<summary>Done</summary>" in text
+    assert "<details" in text and "<summary>Live (1)</summary>" in text
+    assert "<summary>Done (1)</summary>" in text
 
 
 def test_subprojects_nested(web_client, store):
@@ -123,3 +123,9 @@ def test_project_preserves_external_changes(web_client, store, hx):
         },
     )
     assert store.writes == [("p1", {"status": "On hold"})]
+
+
+def test_empty_status_groups_hidden(web_client, store):
+    text = web_client.get("/projects").text
+    assert "<h2>On hold</h2>" not in text
+    assert "<summary>Done" not in text

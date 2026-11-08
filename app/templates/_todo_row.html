@@ -7,7 +7,7 @@
 <span>{{ 'My task' if todo.source == 'mine' else 'AI to-do' }}</span>
 {% if todo.who %}<span>{{ todo.who }}</span>{% endif %}
 {% if todo.project_ids %}<span>{{ project_name(todo.project_ids, projects) }}</span>{% endif %}
-{% if todo.due %}<span class="{{ due_class(todo.due) }}">Due {{ due_value(todo.due) }}</span>{% endif %}
+{% if todo.due %}<span class="{{ due_class(todo.due) }}">Due {{ due_label(todo.due) }}</span>{% endif %}
 {% if todo.phase %}<span>{{ todo.phase }}</span>{% endif %}
 <span>{{ todo.status or '' }}</span>
 {% if todo.url|safe_url %}<a href="{{ todo.url|safe_url }}">Open in Notion</a>{% endif %}

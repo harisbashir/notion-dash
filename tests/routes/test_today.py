@@ -7,7 +7,7 @@ def test_today_sections(web_client):
     text = web_client.get("/").text
     for heading in [
         "3 things are waiting on you.",
-        "Questions for you",
+        "Waiting on you",
         "Your tasks",
         "Due soon",
         "New ideas",

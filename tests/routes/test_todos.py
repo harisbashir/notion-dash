@@ -139,3 +139,18 @@ def test_editor_preserves_external_changes(web_client, store, hx):
     )
     assert store.writes == [("a1", {"status": "Doing"})]
     assert store.todo_items[0].notes == "External notes"
+
+
+def test_friendly_due_labels():
+    from datetime import date
+
+    from app.web import friendly_due
+
+    today = date(2026, 11, 8)
+    tz = None
+    assert friendly_due(date(2026, 11, 8), today, tz) == "today"
+    assert friendly_due(date(2026, 11, 9), today, tz) == "tomorrow"
+    assert friendly_due(date(2026, 11, 7), today, tz) == "yesterday"
+    assert friendly_due(date(2026, 11, 11), today, tz) == "Wednesday"
+    assert friendly_due(date(2026, 12, 1), today, tz) == "1 Dec"
+    assert friendly_due(date(2027, 1, 5), today, tz) == "5 Jan 2027"

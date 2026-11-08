@@ -4,12 +4,12 @@
 {% block title %}Projects{% endblock %}
 {% block content %}
 <h1>Projects</h1>
-<form class="filters" method="get" action="/projects">{{ select('area', 'Area', area_options, area) }}<button>Apply filter</button></form>
+<form class="filters" method="get" action="/projects">{{ select('area', 'Area', area_options, area, empty_label='All areas') }}<button>Apply filter</button></form>
 {{ search('#project-board') }}
 <div id="project-board">
 <div class="board">
-{% for status, trees in groups %}<section><h2>{{ status }}</h2>{% for tree in trees %}{{ card(tree, counts) }}{% else %}<p>No projects here. Check another status.</p>{% endfor %}</section>{% endfor %}
+{% for status, trees in groups if trees %}<section><h2>{{ status }}</h2>{% for tree in trees %}{{ card(tree, counts) }}{% endfor %}</section>{% else %}<p>No open projects{% if area %} in this area{% endif %}.</p>{% endfor %}
 </div>
-{% for status, trees in closed_groups %}<details><summary>{{ status }}</summary>{% for tree in trees %}{{ card(tree, counts) }}{% else %}<p>No projects here. Check another status.</p>{% endfor %}</details>{% endfor %}
+{% for status, trees in closed_groups if trees %}<details><summary>{{ status }} ({{ trees|length }})</summary>{% for tree in trees %}{{ card(tree, counts) }}{% endfor %}</details>{% endfor %}
 </div>
 {% endblock %}

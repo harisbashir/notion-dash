@@ -28,6 +28,23 @@ TEMPLATES.env.filters["safe_url"] = safe_url
 TEMPLATES.env.globals["project_name"] = project_name
 
 
+def friendly_due(due, today, tz):
+    if not due:
+        return ""
+    day = due.astimezone(tz).date() if isinstance(due, datetime) else due
+    delta = (day - today).days
+    if delta == 0:
+        return "today"
+    if delta == 1:
+        return "tomorrow"
+    if delta == -1:
+        return "yesterday"
+    if 1 < delta < 7:
+        return day.strftime("%A")
+    label = f"{day.day} {day.strftime('%b')}"
+    return label if day.year == today.year else f"{label} {day.year}"
+
+
 def render(request, template, *, status_code=200, refresh=False, **ctx):
     tz = ZoneInfo(request.app.state.settings.timezone)
     today = datetime.now(tz).date()
@@ -47,6 +64,7 @@ def render(request, template, *, status_code=200, refresh=False, **ctx):
                 if due
                 else ""
             ),
+            "due_label": lambda due: friendly_due(due, today, tz),
             "stale_time": stale.astimezone(tz).strftime("%H:%M") if stale else "",
             **ctx,
         },

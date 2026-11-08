@@ -5,7 +5,7 @@
 <h1 class="headline">{% if waiting == 0 %}Nothing is waiting on you.{% elif waiting == 1 %}1 thing is waiting on you.{% else %}{{ waiting }} things are waiting on you.{% endif %}</h1>
 {{ search('#today-lists') }}
 <div id="today-lists">
-<section class="list"><h2>Questions for you</h2>
+<section class="list"><h2>Waiting on you</h2>
 {% for todo in owned %}{% include '_todo_row.html' %}{% else %}<p>No to-dos waiting on you. Check back later.</p>{% endfor %}
 </section>
 <div class="today-grid">
