@@ -137,7 +137,7 @@ def test_text_to_blocks_splits_long_line():
 def test_unsupported_block():
     assert (
         str(render_blocks([block("image")]))
-        == '<div class="unsupported">Unsupported block · open in Notion</div>'
+        == '<div class="unsupported">This part can only be viewed in Notion.</div>'
     )
 
 

@@ -78,7 +78,7 @@ def render_blocks(blocks: list[dict]) -> Markup:
             output.append("<hr>")
         else:
             output.append(
-                '<div class="unsupported">Unsupported block · open in Notion</div>'
+                '<div class="unsupported">This part can only be viewed in Notion.</div>'
             )
     if current_list:
         output.append(f"</{current_list}>")

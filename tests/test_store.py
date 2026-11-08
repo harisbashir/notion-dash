@@ -377,3 +377,26 @@ async def test_refresh_cannot_overwrite_successful_write(respx_mock, store, cloc
     _, saved = await asyncio.gather(refresh, write)
     assert saved.summary == "User update"
     assert (await store.projects()).items[0].summary == "User update"
+
+
+async def test_options_retried_after_startup_failure(respx_mock, store, clock):
+    schema = page("data_source_schema")
+    routes = {
+        ds: respx_mock.get(f"{BASE}/data_sources/fake-{ds}")
+        for ds in ["projects", "ai-todos", "my-tasks", "ideas", "ai-notes", "my-notes"]
+    }
+    for route in routes.values():
+        route.respond(404, json={"code": "object_not_found"})
+    await store.load_options()
+    assert len(store.missing) == 6
+    for route in routes.values():
+        route.respond(200, json=schema)
+    respx_mock.post(f"{BASE}/data_sources/fake-projects/query").respond(
+        200, json={"results": [], "has_more": False}
+    )
+    await store.projects()
+    assert len(store.missing) == 6  # too soon to retry
+    clock.now = 61
+    await store.projects()
+    assert store.missing == []
+    assert store.options("ai_todos", "status") == ["New", "Custom status"]

@@ -168,3 +168,21 @@ async def test_write_payloads_and_children_pagination(respx_mock, notion):
     assert await notion.list_children("fake-new") == [{"id": "a"}, {"id": "b"}]
     assert children.calls[1].request.url.params["start_cursor"] == "next"
     await notion.aclose()
+
+
+async def test_create_page_not_retried_on_5xx(respx_mock, notion):
+    route = respx_mock.post(f"{BASE}/pages").respond(502)
+    with pytest.raises(NotionUnavailable):
+        await notion.create_page("ds", {})
+    assert route.call_count == 1
+
+
+async def test_create_page_retried_on_429(respx_mock, notion):
+    route = respx_mock.post(f"{BASE}/pages").mock(
+        side_effect=[
+            httpx.Response(429, headers={"Retry-After": "0"}),
+            httpx.Response(200, json={"id": "p1"}),
+        ]
+    )
+    assert (await notion.create_page("ds", {}))["id"] == "p1"
+    assert route.call_count == 2

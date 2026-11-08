@@ -58,7 +58,9 @@ class NotionClient:
         self.max_attempts = max_attempts
         self.sleep = sleep
 
-    async def _request(self, method, path, **kwargs):
+    async def _request(self, method, path, *, idempotent=True, **kwargs):
+        # Non-idempotent writes are only retried on 429, which Notion rejects
+        # before processing; retrying after a timeout or 5xx could duplicate.
         loop = asyncio.get_running_loop()
         limiter = _limiters.setdefault(loop, _Limiter())
         for attempt in range(self.max_attempts):
@@ -68,7 +70,7 @@ class NotionClient:
                     method, f"{BASE_URL}{path}", headers=self.headers, **kwargs
                 )
             except httpx.RequestError:
-                if attempt + 1 == self.max_attempts:
+                if not idempotent or attempt + 1 == self.max_attempts:
                     raise NotionUnavailable() from None
                 await self.sleep(2**attempt)
                 continue
@@ -78,8 +80,11 @@ class NotionClient:
                 code = response.json().get("code")
             except (ValueError, AttributeError):
                 code = None
-            retryable = response.status_code == 429 or response.status_code >= 500
-            error = NotionUnavailable if retryable else NotionError
+            unavailable = response.status_code == 429 or response.status_code >= 500
+            retryable = response.status_code == 429 or (
+                idempotent and response.status_code >= 500
+            )
+            error = NotionUnavailable if unavailable else NotionError
             if not retryable or attempt + 1 == self.max_attempts:
                 raise error(response.status_code, code)
             try:
@@ -118,7 +123,7 @@ class NotionClient:
         }
         if children is not None:
             payload["children"] = children[:100]
-        page = await self._request("POST", "/pages", json=payload)
+        page = await self._request("POST", "/pages", json=payload, idempotent=False)
         if children and len(children) > 100:
             await self.append_children(page["id"], children[100:])
         return page
@@ -146,6 +151,7 @@ class NotionClient:
                 "PATCH",
                 f"/blocks/{block_id}/children",
                 json={"children": children[start : start + 100]},
+                idempotent=False,
             )
 
     async def aclose(self):

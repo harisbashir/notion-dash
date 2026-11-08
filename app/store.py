@@ -46,8 +46,10 @@ class Store:
         self._cache: dict[tuple[str, str], _Entry] = {}
         self._options: dict[str, dict[str, list[str]]] = {}
         self.missing: list[str] = []
+        self._options_tried: float | None = None
 
     async def load_options(self) -> None:
+        self._options_tried = self.clock()
         self.missing = []
         for ds in FIELDS:
             try:
@@ -86,7 +88,15 @@ class Store:
             else parse_note(page, source)
         )
 
+    async def _retry_options(self):
+        # Startup may have hit a Notion outage; try again at most once a minute.
+        if self.missing and (
+            self._options_tried is None or self.clock() - self._options_tried >= 60
+        ):
+            await self.load_options()
+
     async def _read(self, ds, mode="all"):
+        await self._retry_options()
         # Keep a refresh response from replacing a newer successful write.
         async with self._locks[ds]:
             return await self._fetch(ds, mode)
