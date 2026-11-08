@@ -1,14 +1,14 @@
 {% from '_forms.html' import select %}
-<form id="project-fields" class="project-fields {% if saved %}saved{% endif %}" hx-post="/projects/{{ project.id }}" hx-trigger="change target:select, submit" hx-disabled-elt="#project-fields select, #project-fields textarea, #project-fields button" hx-target="this" hx-swap="outerHTML">
+<form id="project-fields" class="inline-fields project-fields {% if saved %}saved{% endif %}" hx-post="/projects/{{ project.id }}" hx-trigger="change target:select, submit" hx-disabled-elt="#project-fields select, #project-fields textarea, #project-fields button" hx-target="this" hx-swap="outerHTML">
 <input type="hidden" name="_original" value="{{ {'status': project.status, 'priority': project.priority, 'summary': project.summary}|tojson|forceescape }}">
-<div class="compact-selects">
+<div class="pill-selects">
 {{ select('status', 'Status', status_options, project.status, false) }}
-{{ select('priority', 'Priority', priority_options, project.priority) }}
+{{ select('priority', 'Priority', priority_options, project.priority, empty_label='No priority') }}
 </div>
 {% if project.summary %}<p class="project-summary-full">{{ project.summary }}</p>{% endif %}
-<details {% if error %}open{% endif %}><summary>Edit</summary>
-<label>Summary<textarea name="summary">{{ project.summary }}</textarea></label>
-<button>{{ 'Try again' if error else 'Save' }}</button>
+<details class="summary-edit" {% if error %}open{% endif %}><summary>Edit</summary>
+<label><span class="visually-hidden">Summary</span><textarea name="summary" rows="4">{{ project.summary }}</textarea></label>
+<div class="actions"><button class="primary">{{ 'Try again' if error else 'Save' }}</button></div>
 </details>
 {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
 </form>

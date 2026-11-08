@@ -22,7 +22,8 @@ Checks: `uv run pytest -q`, `uv run ruff check .`,
    source ID**. Fill the corresponding `DS_*` entry from `.env.example`; these
    are data source IDs, rather than database page IDs.
 4. Copy `.env.example` to `/opt/notion-dash/.env` with mode `600`. Fill in
-   `NOTION_TOKEN` and all six `DS_*` values, then review the timezone, owner name
+   `NOTION_TOKEN` and the six required `DS_*` values (the three `DS_HQ_*` values for a personal
+   Tasks/Notes/Projects space are optional), then review the timezone, owner name
    and cache TTL. Keep the token and this file out of version control.
 5. Follow [the Proxmox LXC setup guide](scripts/lxc-setup.md) to install Docker
    and Tailscale, clone into `/opt/notion-dash/app`, and configure the env file.

@@ -41,7 +41,7 @@ async def today(request: Request):
     project_map = {p.id: p for p in projects.items}
     for t in open_items:
         key = (t.source, t.id)
-        if key in seen or not (t.source == "mine" or t.who == owner):
+        if key in seen or not (t.source != "ai" or t.who == owner):
             continue
         seen.add(key)
         project_id = next((pid for pid in t.project_ids if pid in project_map), "")
@@ -55,7 +55,7 @@ async def today(request: Request):
     groups = [("Questions", questions), ("Due soon", due)] + project_groups
     # Due-soon can include AI-owned items; only count what is waiting on the owner.
     waiting = sum(
-        1 for _, items in groups for t in items if t.source == "mine" or t.who == owner
+        1 for _, items in groups for t in items if t.source != "ai" or t.who == owner
     )
     return render(
         request,

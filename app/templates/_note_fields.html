@@ -1,8 +1,10 @@
 {% from '_forms.html' import select, project_select %}
-<form id="note-fields" class="editor {% if saved %}saved{% endif %}" hx-post="/notes/{{ note.source }}/{{ note.id }}" hx-target="this" hx-swap="outerHTML">
+<form id="note-fields" class="inline-fields {% if saved %}saved{% endif %}" hx-post="/notes/{{ note.source }}/{{ note.id }}" hx-trigger="change target:select, submit" hx-target="this" hx-swap="outerHTML">
 <input type="hidden" name="_original" value="{{ {'type': note.type, 'project_ids': note.project_ids}|tojson|forceescape }}">
-{{ select('type', 'Type', type_options, note.type) }}
+<div class="pill-selects">
+{{ select('type', 'Type', type_options, note.type, empty_label='No type') }}
 {{ project_select(projects, note.project_ids) }}
-{% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
-<button>{{ 'Try again' if error else 'Save' }}</button>
+</div>
+{% if error %}<p class="error" role="alert">{{ error }}</p><button class="link-button">Try again</button>{% endif %}
+<noscript><button>Save</button></noscript>
 </form>

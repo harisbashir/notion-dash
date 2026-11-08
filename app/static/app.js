@@ -10,7 +10,7 @@ document.addEventListener('input', (event) => {
 const scheme = window.matchMedia('(prefers-color-scheme: dark)');
 function updateTheme() {
   document.querySelector('meta[name="theme-color"]')?.setAttribute(
-    'content', scheme.matches ? '#0E1A1C' : '#F1F4F3'
+    'content', scheme.matches ? '#0B1214' : '#F2F4F3'
   );
 }
 scheme.addEventListener('change', updateTheme);

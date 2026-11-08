@@ -1,7 +1,9 @@
 {% extends 'base.html' %}
 {% block title %}Notion unavailable{% endblock %}
 {% block content %}
+<div class="empty-state">
 <h1>Notion isn't responding.</h1>
-<p>Try again to load your dashboard.</p>
-<form action="{{ request.url.path }}" method="get"><button>Try again</button></form>
+<p>Your data is safe in Notion. Try again in a moment.</p>
+<form action="{{ request.url.path }}" method="get"><button class="primary">Try again</button></form>
+</div>
 {% endblock %}

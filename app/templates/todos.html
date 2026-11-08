@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
 {% from '_forms.html' import project_select, search %}
+{% from '_icons.html' import icon %}
 {% block title %}To-dos{% endblock %}
 {% block content %}
-<h1>To-dos</h1>
-<div class="filter-row">
+<header class="page-head"><h1>To-dos</h1></header>
+<div class="toolbar">
 <div class="chips" aria-label="To-do filters">
 {% for label, value in [('All', ''), ('You', owner_name), ('Claude', 'Claude'), ('Codex', 'Codex'), ('Done', '')] %}
 <a href="/todos?who={{ value|urlencode }}&amp;project={{ project|urlencode }}{% if label == 'Done' %}&amp;done=1{% endif %}" {% if (label == 'Done' and done) or (label != 'Done' and not done and who == value) %}aria-current="page"{% endif %}>{{ label }}</a>
@@ -19,6 +20,6 @@
 {{ search('#todo-list', 'Search to-dos') }}
 <div class="group" id="todo-list">
 {% for todo in todos %}{% include '_todo_row.html' %}{% else %}<p class="empty">No to-dos here.</p>{% endfor %}
-<details class="add-row"><summary>＋ Add a task</summary>{% include '_task_new.html' %}</details>
 </div>
+<details class="add-row"><summary>{{ icon('plus', 20) }}Add a task</summary>{% include '_task_new.html' %}</details>
 {% endblock %}

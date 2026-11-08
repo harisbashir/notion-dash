@@ -400,3 +400,80 @@ async def test_options_retried_after_startup_failure(respx_mock, store, clock):
     await store.projects()
     assert store.missing == []
     assert store.options("ai_todos", "status") == ["New", "Custom status"]
+
+
+@pytest.fixture
+def hq_store(settings, clock):
+    async def sleep(_):
+        pass
+
+    hq = settings.model_copy(
+        update={
+            "ds_hq_projects": "fake-hq-projects",
+            "ds_hq_tasks": "fake-hq-tasks",
+            "ds_hq_notes": "fake-hq-notes",
+        }
+    )
+    return Store(NotionClient("fake-token", sleep=sleep), hq, clock=clock)
+
+
+def hq_project():
+    data = page("project")
+    data["id"] = "fake-hq-project"
+    data["properties"]["Name"] = data["properties"].pop("Project")
+    return data
+
+
+async def test_hq_projects_and_tasks_merge(respx_mock, hq_store):
+    respx_mock.post(f"{BASE}/data_sources/fake-projects/query").mock(
+        return_value=response([page("project")])
+    )
+    respx_mock.post(f"{BASE}/data_sources/fake-hq-projects/query").mock(
+        return_value=response([hq_project()])
+    )
+    projects = (await hq_store.projects()).items
+    assert [(p.id, p.source, p.name) for p in projects] == [
+        ("fake-project", "work", "Example project"),
+        ("fake-hq-project", "home", "Example project"),
+    ]
+    for ds in ("ai-todos", "my-tasks"):
+        respx_mock.post(f"{BASE}/data_sources/fake-{ds}/query").mock(
+            return_value=response([])
+        )
+    respx_mock.post(f"{BASE}/data_sources/fake-hq-tasks/query").mock(
+        return_value=response([page("my_task")])
+    )
+    todos = (await hq_store.todos()).items
+    assert [t.source for t in todos] == ["home"]
+
+
+async def test_hq_skipped_when_integration_lacks_access(respx_mock, hq_store):
+    hq_store.missing = ["hq_projects", "hq_tasks", "hq_notes"]
+    hq_store._options_tried = 0
+    respx_mock.post(f"{BASE}/data_sources/fake-projects/query").mock(
+        return_value=response([page("project")])
+    )
+    hq = respx_mock.post(f"{BASE}/data_sources/fake-hq-projects/query")
+    assert len((await hq_store.projects()).items) == 1
+    assert not hq.called
+    created = respx_mock.post(f"{BASE}/pages").respond(200, json=page("my_task"))
+    await hq_store.create_my_task("Sample", None)
+    payload = json.loads(created.calls[0].request.content)
+    assert payload["parent"]["data_source_id"] == "fake-my-tasks"
+
+
+async def test_new_items_route_to_haris_hq(respx_mock, hq_store):
+    respx_mock.post(f"{BASE}/data_sources/fake-projects/query").mock(
+        return_value=response([page("project")])
+    )
+    respx_mock.post(f"{BASE}/data_sources/fake-hq-projects/query").mock(
+        return_value=response([hq_project()])
+    )
+    created = respx_mock.post(f"{BASE}/pages").respond(200, json=page("my_task"))
+    await hq_store.create_my_task("No project", None)
+    await hq_store.create_my_task("Personal", "fake-hq-project")
+    await hq_store.create_my_task("Work", "fake-project")
+    parents = [
+        json.loads(c.request.content)["parent"]["data_source_id"] for c in created.calls
+    ]
+    assert parents == ["fake-hq-tasks", "fake-hq-tasks", "fake-my-tasks"]

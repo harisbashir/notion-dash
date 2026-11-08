@@ -12,6 +12,10 @@ class Settings(BaseSettings):
     ds_ideas: str
     ds_ai_notes: str
     ds_my_notes: str
+    # Haris HQ, the personal space; leave empty to run without it.
+    ds_hq_projects: str = ""
+    ds_hq_tasks: str = ""
+    ds_hq_notes: str = ""
     cache_ttl_seconds: int = 30
     timezone: str = "America/Toronto"
     owner_name: str = "Haris"

@@ -6,9 +6,16 @@
 </select></label>
 {% endmacro %}
 {% macro project_select(projects, ids=[], empty_label='No project') %}
+{% set work = projects.values()|selectattr('source', 'equalto', 'work')|list %}
+{% set home = projects.values()|selectattr('source', 'equalto', 'home')|list %}
 <label>Project<select name="project"><option value="">{{ empty_label }}</option>
 {% if ids and ids[0] not in projects %}<option value="{{ ids[0] }}" selected>Unknown project</option>{% endif %}
-{% for p in projects.values() %}<option value="{{ p.id }}" {% if ids and p.id == ids[0] %}selected{% endif %}>{{ p.name }}</option>{% endfor %}
+{% for group, items in [('Work', work), ('Personal', home)] if items %}
+{% if home %}<optgroup label="{{ group }}">{% endif %}
+{% for p in items|sort(attribute='name') %}<option value="{{ p.id }}" {% if ids and p.id == ids[0] %}selected{% endif %}>{{ p.name }}</option>{% endfor %}
+{% if home %}</optgroup>{% endif %}
+{% endfor %}
 </select></label>
 {% endmacro %}
-{% macro search(target, placeholder) %}<label class="search"><span class="visually-hidden">{{ placeholder }}</span><input type="search" data-filter="{{ target }}" placeholder="{{ placeholder }}"></label>{% endmacro %}
+{% macro search(target, placeholder) %}{% from '_icons.html' import icon %}<label class="search">{{ icon('search', 18) }}<span class="visually-hidden">{{ placeholder }}</span><input type="search" data-filter="{{ target }}" placeholder="{{ placeholder }}" autocomplete="off"></label>{% endmacro %}
+{% macro notion_link(url, label='Open in Notion') %}{% from '_icons.html' import icon %}{% if url|safe_url %}<a class="notion-link" href="{{ url|safe_url }}" target="_blank" rel="noopener">{{ label }}{{ icon('external', 16) }}</a>{% endif %}{% endmacro %}

@@ -1,9 +1,12 @@
 {% extends 'base.html' %}
+{% from '_forms.html' import notion_link %}
 {% block title %}{{ note.title }}{% endblock %}
 {% block content %}
-<h1>{{ note.title }}</h1>
-{% if note.url|safe_url %}<p><a href="{{ note.url|safe_url }}">Open in Notion</a></p>{% endif %}
+<header class="page-head"><a class="back" href="/notes?tab={{ 'ai' if note.source == 'ai' else 'mine' }}">Notes</a><h1>{{ note.title }}</h1></header>
 {% include '_note_fields.html' %}
+<article class="reading">
 {% if note.source == 'ai' and note.details %}<div class="note-body"><p class="note-details">{{ note.details }}</p></div>{% endif %}
 {% include '_note_body.html' %}
+</article>
+{{ notion_link(note.url) }}
 {% endblock %}

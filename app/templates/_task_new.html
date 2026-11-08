@@ -1,7 +1,9 @@
 {% from '_forms.html' import project_select %}
-<form {% if error %}data-dirty="true"{% endif %} id="task-new" class="quick-add" hx-post="/todos" hx-target="#todo-list" hx-swap="afterbegin">
-<label>Task<input name="title" placeholder="Add a task" value="{{ title or '' }}" required></label>
+<form {% if error %}data-dirty="true"{% endif %} id="task-new" class="quick-add" hx-post="/todos" hx-target="#todo-list" hx-swap="afterbegin" hx-on::after-request="if(event.detail.successful && this.isConnected){this.reset();this.removeAttribute('data-dirty')}">
+<div class="fields">
+<label class="stacked"><span class="visually-hidden">Task</span><input name="title" placeholder="What needs doing?" value="{{ title or '' }}" required autocomplete="off"></label>
 {{ project_select(projects, [project] if project else []) }}
-<button>Add task</button>
-{% if error %}<p class="error" role="alert">{{ error }}</p><button>Try again</button>{% endif %}
+</div>
+{% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+<div class="actions"><button class="primary">{{ 'Try again' if error else 'Add task' }}</button></div>
 </form>

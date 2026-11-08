@@ -5,10 +5,11 @@ from zoneinfo import ZoneInfo
 from fastapi import APIRouter, HTTPException, Request
 
 from app.notion.client import NotionError
+from app.schema import TODO_DS
 from app.web import changes_for, find, render, stale_since
 
 router = APIRouter()
-Source = Literal["ai", "mine"]
+Source = Literal["ai", "mine", "home"]
 SAVE_ERROR = "Couldn't save to Notion. Your change wasn't saved."
 
 
@@ -17,7 +18,7 @@ async def todo_context(request, source, page_id):
     todos = await store.todos(include_done=True)
     projects = await store.projects()
     todo = find([t for t in todos.items if t.source == source], page_id)
-    ds = "ai_todos" if source == "ai" else "my_tasks"
+    ds = TODO_DS[source]
     return dict(
         todo=todo,
         projects={p.id: p for p in projects.items},
@@ -43,7 +44,7 @@ async def todos(
         for t in result.items
         if (
             not who
-            or (request.app.state.settings.owner_name if t.source == "mine" else t.who)
+            or (request.app.state.settings.owner_name if t.source != "ai" else t.who)
             == who
         )
         and (not project or project in t.project_ids)
@@ -65,6 +66,7 @@ async def todos(
             dict.fromkeys(
                 store.options("ai_todos", "status")
                 + store.options("my_tasks", "status")
+                + store.options("hq_tasks", "status")
             )
         ),
     )

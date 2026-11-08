@@ -2,6 +2,7 @@ from fastapi import APIRouter, Request
 
 from app.notion.client import NotionError
 from app.routes.todos import SAVE_ERROR
+from app.schema import PROJECT_DS
 from app.web import changes_for, find, render, stale_since
 
 router = APIRouter()
@@ -67,7 +68,11 @@ async def board(request: Request, area: str = ""):
         ],
         counts=counts,
         area=area,
-        area_options=store.options("projects", "area"),
+        area_options=list(
+            dict.fromkeys(
+                store.options("projects", "area") + store.options("hq_projects", "area")
+            )
+        ),
         stale_since=stale_since(result, todos),
     )
 
@@ -75,11 +80,13 @@ async def board(request: Request, area: str = ""):
 async def fields_context(request, page_id):
     store = request.app.state.store
     projects = await store.projects()
+    project = find(projects.items, page_id)
+    ds = PROJECT_DS[project.source]
     return dict(
-        project=find(projects.items, page_id),
+        project=project,
         stale_since=projects.stale_since,
-        status_options=store.options("projects", "status"),
-        priority_options=store.options("projects", "priority"),
+        status_options=store.options(ds, "status"),
+        priority_options=store.options(ds, "priority"),
     )
 
 
@@ -116,7 +123,7 @@ async def update(request: Request, page_id: str):
     try:
         if changes:
             ctx["project"] = await request.app.state.store.update_project(
-                page_id, changes
+                page_id, changes, ctx["project"].source
             )
         ctx["saved"] = True
     except NotionError:

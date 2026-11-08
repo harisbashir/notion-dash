@@ -1,0 +1,13 @@
+{% macro icon(name, size=24) %}<svg class="icon icon-{{ name }}" width="{{ size }}" height="{{ size }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+{%- if name == 'sun' %}<circle class="fillable" cx="12" cy="12" r="4.25"/><path d="M12 2.5v2m0 15v2M2.5 12h2m15 0h2M5.3 5.3l1.4 1.4m10.6 10.6 1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/>
+{%- elif name == 'squares' %}<rect class="fillable" x="3" y="3" width="13" height="13" rx="3"/><path d="M20 8.5V17a4 4 0 0 1-4 4H8.5"/>
+{%- elif name == 'check' %}<circle class="fillable" cx="12" cy="12" r="9"/><path d="m8 12.3 2.8 2.7L16 9.6"/>
+{%- elif name == 'bulb' %}<path class="fillable" d="M8.2 15.2A6.5 6.5 0 1 1 15.8 15.2c-.8.6-1.1 1.5-1.1 2.3H9.3c0-.8-.3-1.7-1.1-2.3Z"/><path d="M9.5 20.5h5"/>
+{%- elif name == 'page' %}<path class="fillable" d="M14 3H7a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V9Z"/><path d="M14 3v4a2 2 0 0 0 2 2h4M8.5 13h7m-7 4h5"/>
+{%- elif name == 'chevron' %}<path d="m9.5 6 6 6-6 6"/>
+{%- elif name == 'down' %}<path d="m6 9.5 6 6 6-6"/>
+{%- elif name == 'tick' %}<path d="m6.5 12.5 3.5 3.5 7.5-8" stroke-width="2.5"/>
+{%- elif name == 'search' %}<circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 5 5"/>
+{%- elif name == 'plus' %}<path d="M12 5v14M5 12h14" stroke-width="2"/>
+{%- elif name == 'external' %}<path d="M14 4h6v6m0-6-9 9M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/>
+{%- endif %}</svg>{% endmacro %}

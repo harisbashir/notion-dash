@@ -90,6 +90,7 @@ def render(request, template, *, status_code=200, refresh=False, **ctx):
             "fragment": request.headers.get("HX-Request") == "true",
             "occurrence": request.query_params.get("occurrence", ""),
             "owner_name": request.app.state.settings.owner_name,
+            "today_label": f"{today:%A} {today.day} {today:%B}",
             "due_class": lambda due: classify_due(due, today, tz),
             "due_value": lambda due: (
                 due.astimezone(tz).date().isoformat()

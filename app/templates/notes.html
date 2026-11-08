@@ -1,15 +1,16 @@
 {% extends 'base.html' %}
 {% from '_forms.html' import search %}
+{% from '_icons.html' import icon %}
 {% block title %}Notes{% endblock %}
 {% block content %}
-<h1>Notes</h1>
+<header class="page-head"><h1>Notes</h1>
 <div class="segmented" aria-label="Note source">
 {% for value, label in [('mine', 'Mine'), ('ai', 'AI')] %}<a href="/notes?tab={{ value }}&amp;project={{ project|urlencode }}" {% if tab == value %}aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}
-</div>
+</div></header>
 <div class="chips" aria-label="Note type">
 {% for value in [''] + type_options %}<a href="/notes?tab={{ tab }}&amp;type={{ value|urlencode }}&amp;project={{ project|urlencode }}" {% if type == value %}aria-current="page"{% endif %}>{{ value or 'All' }}</a>{% endfor %}
 </div>
 {{ search('#note-list', 'Search notes') }}
-<div id="note-list" class="group">{% for note in notes %}{% include '_note_row.html' %}{% else %}<p class="empty">No notes here.</p>{% endfor %}
-<a class="add-row" href="/notes/new">＋ New note</a></div>
+<div id="note-list" class="group">{% for note in notes %}{% include '_note_row.html' %}{% else %}<p class="empty">No notes here.</p>{% endfor %}</div>
+{% if tab == 'mine' %}<a class="add-row" href="/notes/new">{{ icon('plus', 20) }}New note</a>{% endif %}
 {% endblock %}

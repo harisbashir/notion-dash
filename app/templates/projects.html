@@ -2,10 +2,10 @@
 {% from '_project_card.html' import card %}
 {% block title %}Projects{% endblock %}
 {% block content %}
-<h1>Projects</h1>
+<header class="page-head"><h1>Projects</h1></header>
 <div class="chips" aria-label="Project area">
-{% for value in ['', 'Work', 'Personal', 'Learning'] %}<a href="/projects?area={{ value|urlencode }}" {% if area == value %}aria-current="page"{% endif %}>{{ value or 'All' }}</a>{% endfor %}
+{% for value in [''] + area_options %}<a href="/projects?area={{ value|urlencode }}" {% if area == value %}aria-current="page"{% endif %}>{{ value or 'All' }}</a>{% endfor %}
 </div>
-{% for status, trees in groups if trees %}<section><h2>{{ status }} <span>{{ trees|sum(attribute='count') }}</span></h2><div class="group">{% for tree in trees %}{{ card(tree, counts) }}{% endfor %}</div></section>{% else %}<p>No open projects{% if area %} in this area{% endif %}.</p>{% endfor %}
+{% for status, trees in groups if trees %}<section><h2>{{ status }} <span>{{ trees|sum(attribute='count') }}</span></h2><div class="group">{% for tree in trees %}{{ card(tree, counts) }}{% endfor %}</div></section>{% else %}<p class="empty-page">No open projects{% if area %} in this area{% endif %}.</p>{% endfor %}
 {% for status, trees in closed_groups if trees %}<details class="closed-projects"><summary>{{ status }} <span>{{ trees|sum(attribute='count') }}</span></summary><div class="group">{% for tree in trees %}{{ card(tree, counts) }}{% endfor %}</div></details>{% endfor %}
 {% endblock %}

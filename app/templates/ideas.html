@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
+{% from '_icons.html' import icon %}
 {% block title %}Ideas{% endblock %}
 {% block content %}
-<h1>Ideas</h1>
+<header class="page-head"><h1>Ideas</h1></header>
 <div class="chips" aria-label="Idea status">
 {% for label in ['New', 'Planned', 'Maybe later', 'Closed'] %}
 <a href="/ideas?status={{ label|urlencode }}" {% if selected == label %}aria-current="page"{% endif %}>{{ label }}</a>
@@ -9,6 +10,6 @@
 </div>
 <div class="group" id="idea-list-new">
 {% for idea in ideas %}{% include '_idea_row.html' %}{% else %}<p class="empty">No ideas here.</p>{% endfor %}
-<details class="add-row"><summary>＋ Add an idea</summary>{% include '_idea_new.html' %}</details>
 </div>
+<details class="add-row"><summary>{{ icon('plus', 20) }}Add an idea</summary>{% include '_idea_new.html' %}</details>
 {% endblock %}

@@ -75,14 +75,14 @@ def test_chips_and_search(web_client):
     assert re.search(r'<a[^>]+aria-current="page"[^>]*>Codex</a>', text)
     assert "Apply filter" not in text and "Search to-dos" in text
     assert "data-auto-submit" in text
-    assert text.index('id="todo-ai-c1"') < text.index("＋ Add a task")
+    assert text.index('id="todo-ai-c1"') < text.index("Add a task</summary>")
     for path in ("/ideas", "/projects", "/projects/p1"):
         text = web_client.get(path).text
         assert 'type="search"' not in text
         assert "Apply filter" not in text
     text = web_client.get("/notes").text
     assert ">Mine</a>" in text and ">AI</a>" in text
-    assert "Search notes" in text and "＋ New note" in text
+    assert "Search notes" in text and "New note</a>" in text
 
 
 def test_done_and_idea_chips_filter(web_client, store):
@@ -198,7 +198,7 @@ def test_note_rows_have_only_type_and_project(web_client, store):
 
     store.note_items[0] = replace(store.note_items[0], date=date(2026, 1, 1))
     text = web_client.get("/notes").text
-    meta = re.search(r'<div class="meta">(.*?)</div>', text, re.S)[1]
+    meta = re.search(r'<span class="meta">(.*?)</span></span>', text, re.S)[1]
     assert meta.count("<span") == 2
     assert "General" in meta and "Sample project" in meta
     assert "2026-01-01" not in text and "Open in Notion" not in text

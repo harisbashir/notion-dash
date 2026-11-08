@@ -1,14 +1,9 @@
-<nav aria-label="Main navigation">
-{% for label, path, icon in [
+{% from '_icons.html' import icon %}
+<nav class="tabbar" aria-label="Main navigation">
+{% for label, path, name in [
 ('Today', '/', 'sun'), ('Projects', '/projects', 'squares'), ('To-dos', '/todos', 'check'), ('Ideas', '/ideas', 'bulb'), ('Notes', '/notes', 'page')
 ] %}
 <a href="{{ path }}" {% if request.url.path == path or (path != '/' and request.url.path.startswith(path + '/')) %}aria-current="page"{% endif %}>
-<span class="tab-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-{% if icon == 'sun' %}<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/>
-{% elif icon == 'squares' %}<rect x="3" y="3" width="13" height="13" rx="2"/><path d="M20 8v11a2 2 0 0 1-2 2H8"/>
-{% elif icon == 'check' %}<circle cx="12" cy="12" r="9"/><path d="m7.5 12 3 3 6-6"/>
-{% elif icon == 'bulb' %}<path d="M9 18h6m-5 3h4M8 15a7 7 0 1 1 8 0c-1 .7-1 2-1 3H9c0-1 0-2.3-1-3Z"/>
-{% else %}<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Zm0 0v6h6M8 13h8m-8 4h6"/>{% endif %}
-</svg>{% if path == '/' %}{% include '_questions_badge.html' %}{% endif %}</span><span>{{ label }}</span></a>
+<span class="tab-icon">{{ icon(name) }}{% if path == '/' %}{% include '_questions_badge.html' %}{% endif %}</span><span class="tab-label">{{ label }}</span></a>
 {% endfor %}
 </nav>

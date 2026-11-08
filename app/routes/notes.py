@@ -19,8 +19,15 @@ async def context(request, source):
     return dict(
         notes=notes.items,
         projects={p.id: p for p in projects.items},
-        type_options=store.options(
-            "ai_notes" if source == "ai" else "my_notes", "type"
+        type_options=(
+            store.options("ai_notes", "type")
+            if source == "ai"
+            else list(
+                dict.fromkeys(
+                    store.options("my_notes", "type")
+                    + store.options("hq_notes", "type")
+                )
+            )
         ),
         stale_since=stale_since(notes, projects),
     )

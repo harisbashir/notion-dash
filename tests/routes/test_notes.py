@@ -164,7 +164,7 @@ def test_append_success_refresh_failure_does_not_invite_duplicate(
     assert "<p>Body paragraph</p>" in response.text
     assert "wasn't saved" not in unescape(response.text)
     assert "Saved to Notion." in response.text
-    assert '<textarea name="text" required></textarea>' in response.text
+    assert 'placeholder="Add to this note" required></textarea>' in response.text
 
 
 def test_append_full_outage_uses_rendered_body(web_client, store, hx):

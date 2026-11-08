@@ -1,4 +1,5 @@
-<article class="row" data-search="{{ note.title }} {{ note.type or '' }} {{ project_name(note.project_ids, projects) }}">
-<a class="row-title" href="/notes/{{ note.source }}/{{ note.id }}">{{ note.title }}</a>
-<div class="meta">{% if note.type %}<span>{{ note.type }}</span>{% endif %}{% if not project_page and note.project_ids %}<span>{{ project_name(note.project_ids, projects) }}</span>{% endif %}</div>
-</article>
+{% from '_icons.html' import icon %}
+<a class="row note-row" href="/notes/{{ note.source }}/{{ note.id }}" data-search="{{ note.title }} {{ note.type or '' }} {{ project_name(note.project_ids, projects) }}">
+<span class="row-text"><span class="row-title">{{ note.title }}</span>
+{% if note.type or (not project_page and note.project_ids) %}<span class="meta">{% if note.type %}<span>{{ note.type }}</span>{% endif %}{% if not project_page and note.project_ids %}<span>{{ project_name(note.project_ids, projects) }}</span>{% endif %}</span>{% endif %}</span>
+{{ icon('chevron', 18) }}</a>

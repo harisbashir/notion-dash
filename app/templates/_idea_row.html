@@ -1,15 +1,18 @@
-{% from '_forms.html' import select, project_select %}
+{% from '_forms.html' import select, project_select, notion_link %}
+{% from '_icons.html' import icon %}
 <article id="idea-{{ idea.id }}" class="row idea-row {% if saved %}saved{% endif %}">
 <details {% if error %}open{% endif %}>
-<summary><span class="row-title">{{ idea.title }}</span><span class="meta">{% if not project_page %}{{ project_name(idea.project_ids, projects) }}{% endif %}</span></summary>
+<summary><span class="row-text"><span class="row-title">{{ idea.title }}</span>{% if not project_page and idea.project_ids %}<span class="meta">{{ project_name(idea.project_ids, projects) }}</span>{% endif %}</span>{{ icon('down', 18) }}</summary>
 <form class="editor" hx-post="/ideas/{{ idea.id }}?project_page={{ project_page|default('')|urlencode }}" hx-target="#idea-{{ idea.id }}" hx-swap="outerHTML">
 <input type="hidden" name="_original" value="{{ {'status': idea.status, 'project_ids': idea.project_ids}|tojson|forceescape }}">
-{% if idea.details %}<p>{{ idea.details }}</p>{% endif %}
+{% if idea.details %}<p class="details">{{ idea.details }}</p>{% endif %}
+<div class="fields">
 {{ select('status', 'Status', status_options, idea.status, false) }}
 {{ project_select(projects, idea.project_ids) }}
+</div>
 {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
-<button>{{ 'Try again' if error else 'Save' }}</button>
-{% if idea.url|safe_url %}<a class="detail-link" href="{{ idea.url|safe_url }}">Open in Notion</a>{% endif %}
+<div class="actions"><button class="primary">{{ 'Try again' if error else 'Save' }}</button></div>
+{{ notion_link(idea.url) }}
 </form>
 </details>
 </article>

@@ -3,15 +3,16 @@
 {% block title %}New note{% endblock %}
 {% block content %}
 <div id="note-new">
-<h1>New note</h1>
-<form {% if error %}data-dirty="true"{% endif %} class="editor" hx-post="/notes" hx-target="#note-new" hx-swap="outerHTML">
-<label>Title<input name="title" value="{{ title or '' }}" required></label>
+<header class="page-head"><a class="back" href="/notes">Notes</a><h1>New note</h1></header>
+<form {% if error %}data-dirty="true"{% endif %} class="editor standalone" hx-post="/notes" hx-target="#note-new" hx-swap="outerHTML">
+<div class="fields">
+<label>Title<input name="title" value="{{ title or '' }}" placeholder="Required" required autocomplete="off"></label>
 {{ select('type', 'Type', type_options, type) }}
 {{ project_select(projects, [project] if project else []) }}
-<label>Body<textarea name="body">{{ body or '' }}</textarea></label>
+<label class="stacked">Body<textarea name="body" rows="8" placeholder="Write here. Each line becomes a paragraph.">{{ body or '' }}</textarea></label>
+</div>
 {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
-<button>{{ 'Try again' if error else 'Add note' }}</button>
-<a href="/notes">Cancel</a>
+<div class="actions"><a class="secondary button" href="/notes">Cancel</a><button class="primary">{{ 'Try again' if error else 'Add note' }}</button></div>
 </form>
 </div>
 {% endblock %}

@@ -45,6 +45,7 @@ def test_parse_project():
         "live_url": "https://example.com/live",
         "parent_id": "fake-parent",
         "last_edited": EDITED,
+        "source": "work",
     }
 
 

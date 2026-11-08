@@ -1,17 +1,21 @@
 {% extends 'base.html' %}
+{% from '_icons.html' import icon %}
 {% block title %}Today{% endblock %}
 {% block content %}
+<header class="page-head today-head">
+<p class="dateline">{{ today_label }}</p>
 <h1 class="headline">{% if waiting == 0 %}Nothing is waiting on you.{% elif waiting == 1 %}1 thing is waiting on you.{% else %}{{ waiting }} things are waiting on you.{% endif %}</h1>
+</header>
 {% if groups|selectattr(1)|list %}
 {% for title, items in groups if items %}
 {% set project_page = '1' if title not in ('Questions', 'Due soon') else '' %}
-<section><h2>{{ title }} <span>{{ items|length }}</span></h2><div class="group">
+<section class="{{ 'questions' if title == 'Questions' else '' }}"><h2>{{ title }} <span>{{ items|length }}</span></h2><div class="group">
 {% for todo in items[:3] %}{% include '_todo_row.html' %}{% endfor %}
 {% if items|length > 3 %}<details class="more"><summary>Show {{ items|length - 3 }} more</summary>
 {% for todo in items[3:] %}{% include '_todo_row.html' %}{% endfor %}
 </details>{% endif %}
 </div></section>
 {% endfor %}
-{% if new_ideas %}<a class="ideas-link" href="/ideas">{{ new_ideas }} new {{ 'idea' if new_ideas == 1 else 'ideas' }}</a>{% endif %}
+{% if new_ideas %}<div class="group"><a class="row link-row" href="/ideas"><span>{{ new_ideas }} new {{ 'idea' if new_ideas == 1 else 'ideas' }}</span>{{ icon('chevron', 18) }}</a></div>{% endif %}
 {% endif %}
 {% endblock %}

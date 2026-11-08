@@ -1,8 +1,9 @@
 {% macro card(tree, counts, depth=0) %}
+{% from '_icons.html' import icon %}
 {% set p = tree.project %}
-<article class="project-row {% if depth %}subproject{% endif %}" id="project-{{ p.id }}" style="--depth:{{ depth }}">
-<div class="project-name"><a class="row-title" href="/projects/{{ p.id }}">{% if p.priority == 'High' %}<span class="priority-dot" aria-hidden="true"></span><span class="visually-hidden">High priority</span>{% endif %}{{ p.name }}</a><span class="open-count">{{ counts[p.id] }} open</span></div>
-{% if p.summary %}<p class="project-summary">{{ p.summary }}</p>{% endif %}
-</article>
+<a class="project-row {% if depth %}subproject{% endif %}" id="project-{{ p.id }}" style="--depth:{{ depth }}" href="/projects/{{ p.id }}">
+<span class="row-text"><span class="row-title">{% if p.priority == 'High' %}<span class="priority-dot" aria-hidden="true"></span><span class="visually-hidden">High priority</span>{% endif %}{{ p.name }}</span>
+{% if p.summary %}<span class="project-summary">{{ p.summary }}</span>{% endif %}</span>
+<span class="open-count" {% if not counts[p.id] %}data-zero{% endif %}>{{ counts[p.id] }}<span class="visually-hidden"> open</span></span>{{ icon('chevron', 18) }}</a>
 {% for child in tree.children %}{{ card(child, counts, depth + 1) }}{% endfor %}
 {% endmacro %}

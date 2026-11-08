@@ -15,6 +15,15 @@ FIELDS: dict[str, dict[str, str]] = {
         "parent_id": "Parent Project",
         "subproject_ids": "Sub-projects",
     },
+    "hq_projects": {
+        "name": "Name",
+        "status": "Status",
+        "priority": "Priority",
+        "area": "Area",
+        "summary": "Summary",
+        "parent_id": "Parent Project",
+        "subproject_ids": "Sub-projects",
+    },
     "ai_todos": {
         "title": "Task",
         "status": "Status",
@@ -28,6 +37,16 @@ FIELDS: dict[str, dict[str, str]] = {
         "added": "Added",
     },
     "my_tasks": {
+        "title": "Name",
+        "status": "Status",
+        "priority": "Priority",
+        "due": "Due date",
+        "notes": "Notes",
+        "project_ids": "Project",
+        "list": "List",
+        "parent_id": "Parent Task",
+    },
+    "hq_tasks": {
         "title": "Name",
         "status": "Status",
         "priority": "Priority",
@@ -60,7 +79,20 @@ FIELDS: dict[str, dict[str, str]] = {
         "project_ids": "Project",
         "last_edited": "Last edited",
     },
+    "hq_notes": {
+        "title": "Name",
+        "type": "Type",
+        "tags": "Tags",
+        "project_ids": "Project",
+        "last_edited": "Last edited",
+    },
 }
+
+# Haris HQ (personal space) is optional; "home" marks items that live there.
+TODO_DS = {"ai": "ai_todos", "mine": "my_tasks", "home": "hq_tasks"}
+NOTE_DS = {"ai": "ai_notes", "mine": "my_notes", "home": "hq_notes"}
+PROJECT_DS = {"work": "projects", "home": "hq_projects"}
+OPTIONAL_DS = {"hq_projects", "hq_tasks", "hq_notes"}
 
 
 @dataclass(frozen=True)
@@ -76,13 +108,14 @@ class Project:
     live_url: str | None
     parent_id: str | None
     last_edited: datetime | None
+    source: Literal["work", "home"] = "work"
 
 
 @dataclass(frozen=True)
 class Todo:
     id: str
     url: str
-    source: Literal["ai", "mine"]
+    source: Literal["ai", "mine", "home"]
     title: str
     status: str | None
     priority: str | None
@@ -111,7 +144,7 @@ class Idea:
 class Note:
     id: str
     url: str
-    source: Literal["ai", "mine"]
+    source: Literal["ai", "mine", "home"]
     title: str
     type: str | None
     details: str | None
@@ -157,9 +190,9 @@ def _base(page):
     return {"id": page.get("id", ""), "url": page.get("url", "")}
 
 
-def parse_project(page) -> Project:
+def parse_project(page, source="work") -> Project:
     def v(field):
-        return _value(page, "projects", field)
+        return _value(page, PROJECT_DS[source], field)
 
     parents = v("parent_id") or []
     return Project(
@@ -173,12 +206,13 @@ def parse_project(page) -> Project:
         live_url=v("live_url"),
         parent_id=parents[0] if parents else None,
         last_edited=_datetime(page.get("last_edited_time")),
+        source=source,
     )
 
 
 def parse_todo(page, source) -> Todo:
     def v(field):
-        return _value(page, "ai_todos" if source == "ai" else "my_tasks", field)
+        return _value(page, TODO_DS[source], field)
 
     return Todo(
         **_base(page),
@@ -213,7 +247,7 @@ def parse_idea(page) -> Idea:
 
 def parse_note(page, source) -> Note:
     def v(field):
-        return _value(page, "ai_notes" if source == "ai" else "my_notes", field)
+        return _value(page, NOTE_DS[source], field)
 
     parsed_date = _date(v("date"))
     return Note(

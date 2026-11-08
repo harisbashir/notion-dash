@@ -9,6 +9,10 @@ from app.config import Settings
 from app.notion.client import NotionError
 from app.schema import (
     FIELDS,
+    NOTE_DS,
+    OPTIONAL_DS,
+    PROJECT_DS,
+    TODO_DS,
     options_from_schema,
     parse_idea,
     parse_note,
@@ -48,10 +52,18 @@ class Store:
         self.missing: list[str] = []
         self._options_tried: float | None = None
 
+    def configured(self, ds) -> bool:
+        return bool(getattr(self.settings, f"ds_{ds}", ""))
+
+    def available(self, ds) -> bool:
+        return self.configured(ds) and ds not in self.missing
+
     async def load_options(self) -> None:
         self._options_tried = self.clock()
         self.missing = []
         for ds in FIELDS:
+            if not self.configured(ds):
+                continue
             try:
                 schema = await self.client.get_data_source(
                     getattr(self.settings, f"ds_{ds}")
@@ -77,16 +89,17 @@ class Store:
         return {"or" if mode == "closed" else "and": conditions}
 
     def _parse(self, ds, page):
-        if ds == "projects":
-            return parse_project(page)
         if ds == "ideas":
             return parse_idea(page)
-        source = "ai" if ds.startswith("ai_") else "mine"
-        return (
-            parse_todo(page, source)
-            if ds in {"ai_todos", "my_tasks"}
-            else parse_note(page, source)
-        )
+        for kinds, parse in (
+            (PROJECT_DS, parse_project),
+            (TODO_DS, parse_todo),
+            (NOTE_DS, parse_note),
+        ):
+            for source, key in kinds.items():
+                if key == ds:
+                    return parse(page, source)
+        raise ValueError(f"Unknown data source: {ds}")
 
     async def _retry_options(self):
         # Startup may have hit a Notion outage; try again at most once a minute.
@@ -110,7 +123,7 @@ class Store:
             or self.clock() - entry.fetched >= self.settings.cache_ttl_seconds
         ):
             kwargs = {"filter": self._filter(ds, mode)}
-            if mode == "closed" and ds in {"ai_todos", "my_tasks"}:
+            if mode == "closed" and ds in TODO_DS.values():
                 kwargs.update(
                     sorts=[
                         {"timestamp": "last_edited_time", "direction": "descending"}
@@ -134,6 +147,9 @@ class Store:
         items = []
         stale = []
         for ds, mode in keys:
+            # Haris HQ is optional: skip it until the integration can reach it.
+            if ds in OPTIONAL_DS and not self.available(ds):
+                continue
             result = await self._read(ds, mode)
             items.extend(result.items)
             if result.stale_since is not None:
@@ -141,12 +157,12 @@ class Store:
         return Result(items, min(stale) if stale else None)
 
     async def projects(self):
-        return await self._read("projects")
+        return await self._merge([(ds, "all") for ds in PROJECT_DS.values()])
 
     async def todos(self, include_done: bool = False):
-        keys = [(ds, "open") for ds in ("ai_todos", "my_tasks")]
+        keys = [(ds, "open") for ds in TODO_DS.values()]
         if include_done:
-            keys.extend((ds, "closed") for ds in ("ai_todos", "my_tasks"))
+            keys.extend((ds, "closed") for ds in TODO_DS.values())
         return await self._merge(keys)
 
     async def ideas(self, include_closed: bool = False):
@@ -156,7 +172,23 @@ class Store:
         return await self._merge(keys)
 
     async def notes(self, source):
-        return await self._read("ai_notes" if source == "ai" else "my_notes")
+        """AI notes, or the owner's notes from Projects HQ and Haris HQ together."""
+        if source == "ai":
+            return await self._merge([("ai_notes", "all")])
+        return await self._merge([("my_notes", "all"), ("hq_notes", "all")])
+
+    async def _home_target(self, project_id, work_ds, home_ds):
+        # Personal projects keep their items in Haris HQ; captures without a
+        # project go to Haris HQ too when it is connected.
+        if not self.available(home_ds):
+            return work_ds
+        if project_id:
+            projects = await self.projects()
+            home = any(
+                p.id == project_id and p.source == "home" for p in projects.items
+            )
+            return home_ds if home else work_ds
+        return home_ds
 
     async def note_body(self, page_id):
         return await self.client.list_children(page_id)
@@ -208,7 +240,7 @@ class Store:
                     entry.pages.pop(old_index)
             elif belongs:
                 entry.pages.append(page)
-            if mode == "closed" and ds in {"ai_todos", "my_tasks"}:
+            if mode == "closed" and ds in TODO_DS.values():
                 entry.pages.sort(
                     key=lambda p: p.get("last_edited_time", ""), reverse=True
                 )
@@ -230,18 +262,16 @@ class Store:
             return self._write_through(ds, page)
 
     async def update_todo(self, source, page_id, changes: dict[str, Any]):
-        return await self._update(
-            "ai_todos" if source == "ai" else "my_tasks", page_id, changes
-        )
+        return await self._update(TODO_DS[source], page_id, changes)
 
     async def create_my_task(self, title, project_id=None):
         return await self._create(
-            "my_tasks",
+            await self._home_target(project_id, "my_tasks", "hq_tasks"),
             {"title": title, "project_ids": [project_id] if project_id else []},
         )
 
-    async def update_project(self, page_id, changes):
-        return await self._update("projects", page_id, changes)
+    async def update_project(self, page_id, changes, source="work"):
+        return await self._update(PROJECT_DS[source], page_id, changes)
 
     async def update_idea(self, page_id, changes):
         return await self._update("ideas", page_id, changes)
@@ -259,15 +289,13 @@ class Store:
         )
 
     async def update_note(self, source, page_id, changes):
-        return await self._update(
-            "ai_notes" if source == "ai" else "my_notes", page_id, changes
-        )
+        return await self._update(NOTE_DS[source], page_id, changes)
 
     async def create_my_note(
         self, title, type: str | None, project_id: str | None, body: str
     ):
         return await self._create(
-            "my_notes",
+            await self._home_target(project_id, "my_notes", "hq_notes"),
             {
                 "title": title,
                 "type": type,

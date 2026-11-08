@@ -184,7 +184,10 @@ class FakeStore:
         )
 
     async def notes(self, source):
-        return Result([n for n in self.note_items if n.source == source], self.stale)
+        return Result(
+            [n for n in self.note_items if (n.source == "ai") == (source == "ai")],
+            self.stale,
+        )
 
     async def note_body(self, page_id):
         return self.bodies.get(page_id, [])
@@ -216,7 +219,7 @@ class FakeStore:
         self.todo_items.append(item)
         return item
 
-    async def update_project(self, page_id, changes):
+    async def update_project(self, page_id, changes, source="work"):
         return self.update(self.project_items, page_id, changes)
 
     async def update_idea(self, page_id, changes):
