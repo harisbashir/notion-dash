@@ -4,6 +4,7 @@
 <h1 class="headline">{% if waiting == 0 %}Nothing is waiting on you.{% elif waiting == 1 %}1 thing is waiting on you.{% else %}{{ waiting }} things are waiting on you.{% endif %}</h1>
 {% if groups|selectattr(1)|list %}
 {% for title, items in groups if items %}
+{% set project_page = '1' if title not in ('Questions', 'Due soon') else '' %}
 <section><h2>{{ title }} <span>{{ items|length }}</span></h2><div class="group">
 {% for todo in items[:3] %}{% include '_todo_row.html' %}{% endfor %}
 {% if items|length > 3 %}<details class="more"><summary>Show {{ items|length - 3 }} more</summary>

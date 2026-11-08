@@ -70,3 +70,12 @@ def test_headline_ignores_ai_owned_due_items(web_client, store):
     after = web_client.get("/").text
     head = lambda html: html.split("waiting on you")[0][-40:]  # noqa: E731
     assert head(before) == head(after)
+
+
+def test_project_group_rows_omit_project_name(web_client, store):
+    import re
+
+    text = web_client.get("/").text
+    section = text.split("<h2>Sample project")[1].split("</section>")[0]
+    metas = re.findall(r'<div class="meta">(.*?)</div>', section, re.S)
+    assert metas and all("Sample project" not in m for m in metas)
